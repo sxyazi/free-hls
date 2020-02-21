@@ -25,9 +25,7 @@ def upload_ali(file):
 
 def upload_yuque(file):
 
-  r = requests.post('https://www.yuque.com/api/upload/attach?attachable_id=%s&ctoken=%s' % (_('YUQUE_ATTACHID'), _('YUQUE_CTOKEN')), data={
-    'type': 'attachment'
-  }, files={
+  r = requests.post('https://www.yuque.com/api/upload/attach?attachable_id=%s&ctoken=%s' % (_('YUQUE_ATTACHID'), _('YUQUE_CTOKEN')), files={
     'file': ('image.png', open(file, 'rb'), 'image/png')
   }, headers={
     'Referer': 'https://www.yuque.com/u85460/kb/hkvei2/edit',
@@ -47,7 +45,7 @@ def main():
   os.chdir('/tmp/fmtmp')
   # os.system('/usr/local/bin/ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
   # os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % video)
-  os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 20 out%%03d.ts' % video)
+  os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 10 out%%03d.ts' % video)
 
   i, lines = 0, open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=5)
