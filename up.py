@@ -2,10 +2,11 @@ import os
 import sys
 import glob
 import requests
+from os import getenv as _
 from shellescape import quote
+from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-
+load_dotenv()
 
 
 def upload_ali(file):
@@ -24,11 +25,13 @@ def upload_ali(file):
 
 def upload_yuque(file):
 
-  r = requests.post('https://www.yuque.com/api/upload/attach?attachable_id=4682908&ctoken=ETTEyc8Nl8YmaojmbB5zCjnF', files={
-      'file': ('image.png', open(file, 'rb'), 'image/png')
+  r = requests.post('https://www.yuque.com/api/upload/attach?attachable_id=%s&ctoken=%s' % (_('YUQUE_ATTACHID'), _('YUQUE_CTOKEN')), data={
+    'type': 'attachment'
+  }, files={
+    'file': ('image.png', open(file, 'rb'), 'image/png')
   }, headers={
-    'Referer': 'https://www.yuque.com/u761130/kb/hkvei2/edit',
-    'Cookie': 'ctoken=ETTEyc8Nl8YmaojmbB5zCjnF; _yuque_session=K7A7MMn0oqHcOTkK_dsEZ00bQtqeP9DVKY1le1uk2jOPWIirfqFi6FEf5UvJegP3YRsu6LTGrTQxmsz8A-rzTw=='
+    'Referer': 'https://www.yuque.com/u85460/kb/hkvei2/edit',
+    'Cookie': 'ctoken=%s; _yuque_session=%s' % (_('YUQUE_CTOKEN'), _('YUQUE_SESSION'))
   }).json()
 
   if 'data' in r and 'url' in r['data']:
@@ -44,7 +47,7 @@ def main():
   os.chdir('/tmp/fmtmp')
   # os.system('/usr/local/bin/ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
   # os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % video)
-  os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 5 out%%03d.ts' % video)
+  os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 20 out%%03d.ts' % video)
 
   i, lines = 0, open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=5)
