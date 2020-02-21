@@ -48,7 +48,7 @@ def main():
   os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 10 out%%03d.ts' % video)
 
   i, lines = 0, open('out.m3u8', 'r').read()
-  executor = ThreadPoolExecutor(max_workers=5)
+  executor = ThreadPoolExecutor(max_workers=10)
   futures  = {executor.submit(upload_yuque, chunk): chunk for chunk in glob.glob('*.ts')}
 
   for future in as_completed(futures):
