@@ -13,7 +13,7 @@ def publish(code):
     'code': code
   }).json()
 
-  if r['status'] == 0:
+  if r['code'] == 0:
     return r['data']['key']
   else:
     return None
