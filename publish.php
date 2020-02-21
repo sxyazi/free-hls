@@ -12,6 +12,6 @@ if (!$_POST['code']) {
 
 
 $file = md5($_POST['code']);
-file_put_contents("data/{$file}", $_POST['code']);
+file_put_contents("data/{$file}", base64_encode($_POST['code']));
 
-succ(['key' => $file]);
+succ(['key' => $file, 'url' => "http://101.200.147.153:3395/play.php?key={$file}"]);
