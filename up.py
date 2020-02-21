@@ -14,7 +14,7 @@ def publish(code):
   }).json()
 
   if r['code'] == 0:
-    return r['data']['key']
+    return r['data']['url']
   else:
     return None
 
