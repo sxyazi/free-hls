@@ -8,6 +8,15 @@ from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 
+def publish(code):
+  r = requests.post('http://101.200.147.153:3395/publish.php', data={
+    'code': code
+  }).json()
+
+  if r['status'] == 0:
+    return r['data']['key']
+  else:
+    return None
 
 def upload_ali(file):
 
@@ -57,8 +66,7 @@ def main():
     i += 1
     print('[%s/%s] Uploaded %s to %s' % (i, len(futures), futures[future], future.result()))
 
-  open('out.m3u8', 'w').write(lines)
-  print('done')
+  print('This video has been published to: %s' % publish(lines))
 
 
 if __name__ == '__main__':
