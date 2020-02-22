@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import shutil
 import requests
 from os import getenv as _
 from shellescape import quote
@@ -50,14 +51,18 @@ def upload_yuque(file):
 
 def main():
 
-  video = quote(os.path.abspath(sys.argv[1]))
-  title = sys.argv[2] if len(sys.argv)>2 else os.path.splitext(os.path.basename(sys.argv[1]))[0]
+  video  = quote(os.path.abspath(sys.argv[1]))
+  title  = sys.argv[2] if len(sys.argv)>2 else os.path.splitext(os.path.basename(sys.argv[1]))[0]
+  tmpdir = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
 
-  os.system('rm -rf /tmp/fmtmp; mkdir /tmp/fmtmp')
-  os.chdir('/tmp/fmtmp')
-  # os.system('/usr/local/bin/ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
-  # os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % video)
-  os.system('/usr/local/bin/ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 10 out%%03d.ts' % video)
+  if os.path.isdir(tmpdir):
+    shutil.rmtree(tmpdir)
+  os.mkdir(tmpdir)
+  os.chdir(tmpdir)
+
+  # os.system('ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
+  # os.system('ffmpeg -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % video)
+  os.system('ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 10 out%%03d.ts' % video)
 
   i, lines = 0, open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
