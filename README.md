@@ -4,6 +4,7 @@
 
 本项目仅供学习交流使用，在使用过程中对你或他人造成的任何损失我们概不负责。
 
+演示地址（创建于 2020/02/22）：[http://sxyz.blog/code/free-hls/test.html](http://sxyz.blog/code/free-hls/test.html)
 
 
 ## 使用
@@ -12,7 +13,7 @@
 
 ```bash
 apt install -y ffmpeg python3 python3-pip
-pip install shellescape python-dotenv
+pip3 install shellescape python-dotenv
 ```
 
 准备好目标视频文件，输入如下指令开始切片、上传：
