@@ -6,6 +6,7 @@
   	<?=htmlspecialchars($meta->title)?>
   </title>
   <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" type="text/css" href="css/video-js.min.css">
   <style type="text/css">
     * {
@@ -50,6 +51,20 @@
     .vjs-big-play-button {
       margin-top: -130px !important;
     }
+
+    @media (max-width: 1200px) {
+      body{
+        background: #1d1d1d;
+      }
+
+      h1 {
+        padding: 0.75rem;
+        color: #bdbdbd;
+        font-size: 1.1252rem;
+        font-weight: normal;
+        box-sizing: border-box;
+      }
+    }
   </style>
 </head>
 <body>
@@ -83,6 +98,10 @@ player.ready(function () {
     volumeStep: 0.1,
     enableModifiersForNumbers: false
   });
+});
+
+player.on('play', function () {
+  document.querySelector('h1').style.display = 'none';
 });
 </script>
 
