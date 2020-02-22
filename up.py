@@ -8,9 +8,10 @@ from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 
-def publish(code):
-  r = requests.post('http://101.200.147.153:3395/publish.php', data={
-    'code': code
+def publish(code, title=None):
+  r = requests.post('%s/publish.php' % _('APIURL'), data={
+    'code': code,
+    'title': title
   }).json()
 
   if r['code'] == 0:
@@ -50,6 +51,8 @@ def upload_yuque(file):
 def main():
 
   video = quote(os.path.abspath(sys.argv[1]))
+  title = os.path.splitext(os.path.basename(sys.argv[1]))[0]
+
   os.system('rm -rf /tmp/fmtmp; mkdir /tmp/fmtmp')
   os.chdir('/tmp/fmtmp')
   # os.system('/usr/local/bin/ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
@@ -66,7 +69,7 @@ def main():
     i += 1
     print('[%s/%s] Uploaded %s to %s' % (i, len(futures), futures[future], future.result()))
 
-  print('This video has been published to: %s' % publish(lines))
+  print('This video has been published to: %s' % publish(lines, title))
 
 
 if __name__ == '__main__':

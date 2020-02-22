@@ -8,5 +8,5 @@ if (!is_file($file)) {
 	fail('Key does not exist');
 }
 
-$code = file_get_contents($file);
+$meta = json_decode(file_get_contents($file));
 require 'play.html';

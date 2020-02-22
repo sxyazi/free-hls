@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(0);
+
 function fail($err) {
 	exit(json_encode(['code' => -1, 'err' => $err]));
 }
