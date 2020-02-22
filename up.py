@@ -53,7 +53,7 @@ def segment_time(file):
   rate = os.popen('ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip()
 
   try:
-    return int((20 * 2 << 22) / (int(rate) * 1.25))
+    return int((20 * 2 << 22) / (int(rate) * 1.35))
   except Exception:
     return 10
 
@@ -61,7 +61,7 @@ def main():
 
   video  = quote(os.path.abspath(sys.argv[1]))
   title  = sys.argv[2] if len(sys.argv)>2 else os.path.splitext(os.path.basename(sys.argv[1]))[0]
-  stime  = segment_time(video)
+  stime  = float(sys.argv[3]) if len(sys.argv)>3 else segment_time(video)
   tmpdir = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
 
   if os.path.isdir(tmpdir):
