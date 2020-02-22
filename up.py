@@ -3,6 +3,7 @@ import sys
 import glob
 import shutil
 import requests
+import subprocess
 from os import getenv as _
 from shellescape import quote
 from dotenv import load_dotenv
@@ -48,11 +49,19 @@ def upload_yuque(file):
   else:
     return None
 
+def segment_time(file):
+  rate = os.popen('ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip()
+
+  try:
+    return int((20 * 2 << 22) / (int(rate) * 1.25))
+  except Exception:
+    return 10
 
 def main():
 
   video  = quote(os.path.abspath(sys.argv[1]))
   title  = sys.argv[2] if len(sys.argv)>2 else os.path.splitext(os.path.basename(sys.argv[1]))[0]
+  stime  = segment_time(video)
   tmpdir = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
 
   if os.path.isdir(tmpdir):
@@ -62,7 +71,7 @@ def main():
 
   # os.system('ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
   # os.system('ffmpeg -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % video)
-  os.system('ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time 10 out%%03d.ts' % video)
+  os.system('ffmpeg -i %s -vcodec copy -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time %d out%%03d.ts' % (video, stime))
 
   i, lines = 0, open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
