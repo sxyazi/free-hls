@@ -35,10 +35,10 @@ def upload_ali(file):
 
 def upload_yuque(file):
 
-  r = requests.post('https://www.yuque.com/api/upload/attach?attachable_id=%s&ctoken=%s' % (_('YUQUE_ATTACHID'), _('YUQUE_CTOKEN')), files={
+  r = requests.post('https://www.yuque.com/api/upload/attach?ctoken=%s' % _('YUQUE_CTOKEN'), files={
     'file': ('image.png', open(file, 'rb'), 'image/png')
   }, headers={
-    'Referer': 'https://www.yuque.com/u85460/kb/hkvei2/edit',
+    'Referer': 'https://www.yuque.com/yuque/topics/new',
     'Cookie': 'ctoken=%s; _yuque_session=%s' % (_('YUQUE_CTOKEN'), _('YUQUE_SESSION'))
   }).json()
 
@@ -51,7 +51,7 @@ def upload_yuque(file):
 def main():
 
   video = quote(os.path.abspath(sys.argv[1]))
-  title = os.path.splitext(os.path.basename(sys.argv[1]))[0]
+  title = sys.argv[2] if len(sys.argv)>2 else os.path.splitext(os.path.basename(sys.argv[1]))[0]
 
   os.system('rm -rf /tmp/fmtmp; mkdir /tmp/fmtmp')
   os.chdir('/tmp/fmtmp')
