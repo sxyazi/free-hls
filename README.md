@@ -4,6 +4,7 @@
 
 本项目仅供学习交流使用，在使用过程中对你或他人造成的任何损失我们概不负责。
 
+演示地址：[http://sxyz.blog/code/free-hls/test.html](http://sxyz.blog/code/free-hls/test.html)
 
 
 ## 使用
