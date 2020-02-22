@@ -12,7 +12,7 @@
 
 ```bash
 apt install -y ffmpeg python3 python3-pip
-pip install shellescape python-dotenv
+pip3 install shellescape python-dotenv
 ```
 
 准备好目标视频文件，输入如下指令开始切片、上传：
