@@ -83,7 +83,8 @@ var player = videojs('player', {
     hls: {
       overrideNative: !videojs.browser.IS_SAFARI,
     }
-  }
+  },
+  playbackRates: [0.5, 1, 1.5, 2]
 });
 
 videojs.Hls.xhr.beforeRequest = function(options) {
