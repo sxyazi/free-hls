@@ -2,12 +2,10 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>
-  	<?=htmlspecialchars($meta->title)?>
-  </title>
+  <title>{{ meta.title }}</title>
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="css/video-js.min.css">
+  <link rel="stylesheet" type="text/css" href="/assets/css/video-js.min.css">
   <style type="text/css">
     * {
   		margin: 0;
@@ -69,18 +67,16 @@
 </head>
 <body>
 
-<h1>
-	<?=htmlspecialchars($meta->title)?>
-</h1>
+<h1>{{ meta.title }}</h1>
 
 <div class="wrapper">
 	<video id=player width=960 height=540 class="video-js vjs-default-skin vjs-big-play-centered" controls>
-	  <source src="data:application/vnd.apple.mpegurl;base64,<?=$meta->code?>" type="application/x-mpegURL">
+	  <source src="data:application/vnd.apple.mpegurl;base64,{{meta.code}}" type="application/x-mpegURL">
 	</video>
 </div>
 
-<script src="js/video.min.js"></script>
-<script src="js/videojs.hotkeys.min.js"></script>
+<script src="/assets/js/video.min.js"></script>
+<script src="/assets/js/videojs.hotkeys.min.js"></script>
 <script>
 var player = videojs('player');
 

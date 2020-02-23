@@ -11,13 +11,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 
 def publish(code, title=None):
-  r = requests.post('%s/publish.php' % _('APIURL'), data={
+  r = requests.post('%s/publish' % _('APIURL'), data={
     'code': code,
     'title': title
   }).json()
 
   if r['code'] == 0:
-    return r['data']['url']
+    return '%s/play/%s' % (_('APIURL'), r['data'])
   else:
     return None
 
@@ -53,15 +53,13 @@ def segment_time(file):
   rate = os.popen('ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip()
 
   try:
-    return int((20 * 2 << 22) / (int(rate) * 1.35))
+    return min(20, int((20 * 2 << 22) / (int(rate) * 1.35)))
   except Exception:
     return 10
 
 def video_codec(file):
   codecs = os.popen('ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip()
-
-  s = set(codecs.split('\n'))
-  return 'copy' if 'h264' in s and len(s) == 1 else 'h264'
+  return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
 
 def main():
 
@@ -78,7 +76,7 @@ def main():
 
   # os.system('ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
   # os.system('ffmpeg -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % video)
-  os.system('ffmpeg -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time %d out%%03d.ts' % (video, vcodec, stime))
+  os.system('ffmpeg -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time %d out%%04d.ts' % (video, vcodec, stime))
 
   i, lines = 0, open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
