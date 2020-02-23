@@ -4,7 +4,7 @@
 
 本项目仅供学习交流使用，在使用过程中对你或他人造成的任何损失我们概不负责。
 
-演示地址（发布于 2020/02/22）：[http://sxyz.blog/code/free-hls/test.html](http://sxyz.blog/code/free-hls/test.html)
+**视频教程：只需 10 分钟搭建出一款属于自己的视频床：[https://sxyz.gitee.io/free-hls/usage.html](https://sxyz.gitee.io/free-hls/usage.html)**
 
 
 
