@@ -80,7 +80,7 @@ def main():
 
   title   = argv[2] if len(argv)>2 else os.path.splitext(os.path.basename(argv[1]))[0]
   tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
-  command = command_generator(quote(os.path.abspath(argv[1])))
+  command = command_generator((os.path.abspath(argv[1])))
 
   if os.path.isdir(tmpdir):
     shutil.rmtree(tmpdir)
