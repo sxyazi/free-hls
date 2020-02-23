@@ -1,14 +1,11 @@
-import os
-import sys
-import glob
-import shutil
-import requests
-import subprocess
+import os, sys, glob, shutil, requests, subprocess
+from sys import argv
 from os import getenv as _
 from shellescape import quote
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
+argv += [''] * 3
 
 def publish(code, title=None):
   r = requests.post('%s/publish' % _('APIURL'), data={
@@ -49,34 +46,48 @@ def upload_yuque(file):
   else:
     return None
 
-def segment_time(file):
-  rate = os.popen('ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip()
-
-  try:
-    return min(20, int((20 * 2 << 22) / (int(rate) * 1.35)))
-  except Exception:
-    return 10
+def bit_rate(file):
+  return int(os.popen('ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip())
 
 def video_codec(file):
   codecs = os.popen('ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip()
   return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
 
+def command_generator(file):
+
+  sub          = ''
+  rate         = bit_rate(file)
+  vcodec       = video_codec(file)
+  segment_time = min(20, int((20 * 2 << 22) / (rate * 1.35)))
+
+
+  #LIMITED
+  if rate > 6e6 or argv[3] == 'LIMITED':
+    br     = min(rate, 15e6)
+    sub   += ' -b:v %d -maxrate %d -bufsize %d' % (br, 16e6, 16e6/1.5)
+    vcodec, segment_time = 'h264', 5
+
+  #SEGMENT_TIME
+  if argv[3].isnumeric():
+    sub += ' -segment_time %d' % float(argv[3])
+
+  # return ' -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % file
+  # return ' -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % file
+  return ' -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 %s out%%05d.ts' % (file, vcodec, sub)
+
+
 def main():
 
-  video  = quote(os.path.abspath(sys.argv[1]))
-  title  = sys.argv[2] if len(sys.argv)>2 else os.path.splitext(os.path.basename(sys.argv[1]))[0]
-  stime  = float(sys.argv[3]) if len(sys.argv)>3 else segment_time(video)
-  vcodec = video_codec(video)
-  tmpdir = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
+  title   = argv[2] if len(argv)>2 else os.path.splitext(os.path.basename(argv[1]))[0]
+  tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
+  command = command_generator(quote(os.path.abspath(argv[1])))
 
   if os.path.isdir(tmpdir):
     shutil.rmtree(tmpdir)
   os.mkdir(tmpdir)
   os.chdir(tmpdir)
-
-  # os.system('ffmpeg -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % video)
-  # os.system('ffmpeg -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % video)
-  os.system('ffmpeg -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 -segment_time %d out%%04d.ts' % (video, vcodec, stime))
+  print('ffmpeg %s' % command)
+  os.system('ffmpeg %s' % command)
 
   i, lines = 0, open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
