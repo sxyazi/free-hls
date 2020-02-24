@@ -44,9 +44,10 @@ pip3 install shellescape python-dotenv
 准备好目标视频文件，输入如下指令开始切片、上传：
 
 ```bash
-python3 up.py test.mp4         #默认标题
-python3 up.py test.mp4 测试哦   #自定义标题
-python3 up.py test.mp4 test 5  #自定义分段大小
+python3 up.py test.mp4               #默认标题
+python3 up.py test.mp4 测试哦         #自定义标题
+python3 up.py test.mp4 test 5        #自定义分段大小
+python3 up.py test.mp4 test LIMITED  #限制码率（需重编码）
 ```
 
 
