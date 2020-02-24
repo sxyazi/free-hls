@@ -75,7 +75,7 @@ def command_generator(file):
 
 def main():
 
-  title   = argv[2] if len(argv)>2 else os.path.splitext(os.path.basename(argv[1]))[0]
+  title   = argv[2] if argv[2] else os.path.splitext(os.path.basename(argv[1]))[0]
   tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
   command = command_generator(os.path.abspath(argv[1]))
 
@@ -96,7 +96,10 @@ def main():
     i += 1
     print('[%s/%s] Uploaded %s to %s' % (i, len(futures), futures[future], future.result()))
 
-  print('This video has been published to: %s' % publish(lines, title))
+  url = publish(lines, title)
+  print('\n')
+  print('This video has been published to: %s' % url)
+  print('You can also download it directly: %s.m3u8' % url)
 
 
 if __name__ == '__main__':
