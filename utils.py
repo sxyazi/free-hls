@@ -1,4 +1,14 @@
-import os
+import subprocess
 
-def exec(cmd):
-	return os.popen(cmd).read().strip()
+def exec(cmd, timeout=None, **kwargs):
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    communicate_kwargs = {}
+    if timeout is not None:
+        communicate_kwargs['timeout'] = timeout
+
+    out, err = p.communicate(**communicate_kwargs)
+    if p.returncode != 0:
+        raise Exception(cmd, out, err)
+
+    return out.decode('utf-8').strip()
