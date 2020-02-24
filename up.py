@@ -1,7 +1,6 @@
 import os, sys, glob, shutil, requests
 from sys import argv
 from utils import exec
-from shlex import quote
 from os import getenv as _
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -45,10 +44,10 @@ def upload_yuque(file):
     return None
 
 def bit_rate(file):
-  return int(exec('ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 %s' % file))
+  return int(exec(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))
 
 def video_codec(file):
-  codecs = exec('ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 %s' % file)
+  codecs = exec(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
   return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
 
 def command_generator(file):
@@ -78,7 +77,7 @@ def main():
 
   title   = argv[2] if len(argv)>2 else os.path.splitext(os.path.basename(argv[1]))[0]
   tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
-  command = command_generator(quote(os.path.abspath(argv[1])))
+  command = command_generator(os.path.abspath(argv[1]))
 
   if os.path.isdir(tmpdir):
     shutil.rmtree(tmpdir)

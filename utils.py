@@ -1,7 +1,7 @@
 import subprocess
 
 def exec(cmd, timeout=None, **kwargs):
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     communicate_kwargs = {}
     if timeout is not None:
