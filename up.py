@@ -1,17 +1,14 @@
-import os, sys, glob, shutil, requests, subprocess
+import os, sys, glob, shutil, requests
 from sys import argv
+from utils import exec
 from os import getenv as _
-from shellescape import quote
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 argv += [''] * 3
 
 def publish(code, title=None):
-  r = requests.post('%s/publish' % _('APIURL'), data={
-    'code': code,
-    'title': title
-  }).json()
+  r = requests.post('%s/publish' % _('APIURL'), data={'code': code, 'title': title}).json()
 
   if r['code'] == 0:
     return '%s/play/%s' % (_('APIURL'), r['data'])
@@ -47,10 +44,10 @@ def upload_yuque(file):
     return None
 
 def bit_rate(file):
-  return int(os.popen('ffprobe -v error -show_entries format=bit_rate -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip())
+  return int(exec(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))
 
 def video_codec(file):
-  codecs = os.popen('ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 %s' % file).read().strip()
+  codecs = exec(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
   return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
 
 def command_generator(file):
@@ -80,7 +77,7 @@ def main():
 
   title   = argv[2] if len(argv)>2 else os.path.splitext(os.path.basename(argv[1]))[0]
   tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
-  command = command_generator((os.path.abspath(argv[1])))
+  command = command_generator(os.path.abspath(argv[1]))
 
   if os.path.isdir(tmpdir):
     shutil.rmtree(tmpdir)
