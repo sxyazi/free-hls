@@ -12,7 +12,7 @@ def hello():
 
 @app.route('/favicon.ico')
 def favicon():
-    return abort(404)
+  return abort(404)
 
 @app.route('/play/<key>')
 def play(key):

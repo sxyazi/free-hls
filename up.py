@@ -1,8 +1,8 @@
 import os, sys, glob, shutil, requests
 from sys import argv
-from utils import exec
 from os import getenv as _
 from dotenv import load_dotenv
+from utils import exec, safename
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 argv += [''] * 3
@@ -18,10 +18,10 @@ def publish(code, title=None):
 def upload_ali(file):
 
   r = requests.post('https://kfupload.alibaba.com/mupload', data={
-      'name': 'image.png',
-      'scene': 'productImageRule'
+    'name': 'image.png',
+    'scene': 'productImageRule'
   }, files={
-      'file': ('image.png', open(file, 'rb'), 'image/png')
+    'file': ('image.png', open(file, 'rb'), 'image/png')
   }).json()
 
   if 'url' in r:
@@ -67,10 +67,10 @@ def command_generator(file):
   #SEGMENT_TIME
   if argv[3].isnumeric():
     sub += ' -segment_time %d' % float(argv[3])
+  else:
+    sub += ' -segment_time %d' % segment_time
 
-  # return ' -i %s -codec copy -map 0 -f segment -segment_list out.m3u8 -segment_list_flags +live -segment_time 5 out%%03d.ts' % file
-  # return ' -i %s -vcodec copy -acodec aac -hls_list_size 0 -hls_segment_size 3000000 -f hls out.m3u8' % file
-  return ' -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 %s out%%05d.ts' % (file, vcodec, sub)
+  return ' -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
 
 
 def main():
