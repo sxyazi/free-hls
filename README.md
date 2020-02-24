@@ -18,7 +18,7 @@
 
 ```bash
 apt install -y ffmpeg python3 python3-pip
-pip3 install shellescape python-dotenv
+pip3 install python-dotenv
 ```
 
 

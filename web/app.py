@@ -3,22 +3,29 @@ import json
 import time
 import base64
 import hashlib
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, Response, abort, request, jsonify, render_template, send_from_directory
 app = Flask(__name__)
 
 @app.route('/')
 def hello():
   return 'Hello, World!'
 
+@app.route('/favicon.ico')
+def favicon():
+    return abort(404)
+
 @app.route('/play/<key>')
 def play(key):
-  file = 'userdata/%s' % key
+  file = 'userdata/%s' % os.path.splitext(key)[0]  #TODO
 
   if not os.path.isfile(file):
     return jsonify({'code': -1, 'message': 'Key does not exist'})
 
   meta = json.load(open(file, 'r'))
-  return render_template('play.html', meta=meta)
+  if not key[-5:] == '.m3u8':
+    return render_template('play.html', meta=meta)
+
+  return Response(meta['raw'], mimetype='application/vnd.apple.mpegurl')
 
 @app.route('/publish', methods=['POST'])
 def publish():
@@ -32,6 +39,7 @@ def publish():
   key = filename(code)
   with open('userdata/%s' % key, 'w') as f:
     f.write(json.dumps({
+      'raw': code,
       'code': base64.b64encode(code.encode('utf-8')).decode('ascii'),
       'title': request.form.get('title') or 'untitled',
       'created_at': int(time.time())
@@ -46,9 +54,8 @@ def send_js(path):
 
 
 def filename(code):
-  md5 = hashlib.md5()
-  md5.update(code.encode('utf-8'))
-  return md5.hexdigest()
+  md5 = hashlib.md5(code.encode('utf-8')).hexdigest()
+  return md5[8:24]
 
 
 if __name__ == '__main__':
