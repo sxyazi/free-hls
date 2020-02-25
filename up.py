@@ -1,9 +1,8 @@
 import os, sys, requests
 from sys import argv
 from os import getenv as _
-from uploader import Handler
 from dotenv import load_dotenv
-from utils import exec, tsfiles, safename, sameparams
+from utils import exec, tsfiles, safename, uploader, sameparams
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 argv += [''] * 3
@@ -70,7 +69,7 @@ def main():
   failures, completions = 0, 0
   lines    = open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
-  futures  = {executor.submit(Handler(), chunk): chunk for chunk in tsfiles(lines)}
+  futures  = {executor.submit(uploader(), chunk): chunk for chunk in tsfiles(lines)}
 
   for future in as_completed(futures):
     completions += 1

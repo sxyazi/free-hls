@@ -1,7 +1,9 @@
 import os
 import re
 import shutil
+import importlib
 import subprocess
+from os import getenv as _
 
 def exec(cmd, timeout=None, **kwargs):
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -35,3 +37,6 @@ def sameparams(dir, command):
     return False
 
   return True
+
+def uploader():
+  return importlib.import_module('uploader.' + _('UPLOAD_DRIVE')).handle
