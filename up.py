@@ -1,20 +1,24 @@
-import os, sys, glob, shutil, requests
+import os, sys, requests
 from sys import argv
 from os import getenv as _
 from uploader import Handler
 from dotenv import load_dotenv
-from utils import exec, safename
+from utils import exec, tsfiles, safename, sameparams
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 argv += [''] * 3
 
 def publish(code, title=None):
-  r = requests.post('%s/publish' % _('APIURL'), data={'code': code, 'title': title}).json()
+  try:
+    r = requests.post('%s/publish' % _('APIURL'), data={'code': code, 'title': title}).json()
+    if r['err']:
+      print('Publish failed: %s' % r['message'])
 
-  if r['code'] == 0:
-    return '%s/play/%s' % (_('APIURL'), r['data'])
-  else:
-    return None
+    url = '%s/play/%s' % (_('APIURL'), r['data'])
+    print('This video has been published to: %s' % url)
+    print('You can also download it directly: %s.m3u8' % url)
+  except:
+    print('Publish failed: network connection error')
 
 def bit_rate(file):
   return int(exec(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))
@@ -43,7 +47,7 @@ def command_generator(file):
   else:
     sub += ' -segment_time %d' % segment_time
 
-  return ' -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
+  return 'ffmpeg -i %s -vcodec %s -acodec aac -map 0 -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
 
 
 def main():
@@ -52,27 +56,42 @@ def main():
   tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
   command = command_generator(os.path.abspath(argv[1]))
 
-  if os.path.isdir(tmpdir):
-    shutil.rmtree(tmpdir)
-  os.mkdir(tmpdir)
-  os.chdir(tmpdir)
-  print('ffmpeg %s' % command)
-  os.system('ffmpeg %s' % command)
+  if sameparams(tmpdir, command):
+    os.chdir(tmpdir)
+  else:
+    os.mkdir(tmpdir)
+    os.chdir(tmpdir)
+    os.system(command)
+    open('command.sh', 'w').write(command)
 
-  i, lines = 0, open('out.m3u8', 'r').read()
+  failures, completions = 0, 0
+  lines    = open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
-  futures  = {executor.submit(Handler, chunk): chunk for chunk in glob.glob('*.ts')}
+  futures  = {executor.submit(Handler, chunk): chunk for chunk in tsfiles(lines)}
 
   for future in as_completed(futures):
-    lines = lines.replace(futures[future], future.result())
+    completions += 1
+    result = future.result()
 
-    i += 1
-    print('[%s/%s] Uploaded %s to %s' % (i, len(futures), futures[future], future.result()))
+    if not result:
+      failures += 1
+      print('[%s/%s] Uploaded failed: %s' % (completions, len(futures), futures[future]))
+      continue
 
-  url = publish(lines, title)
+    lines = lines.replace(futures[future], result)
+    print('[%s/%s] Uploaded %s to %s' % (completions, len(futures), futures[future], result))
+
   print('\n')
-  print('This video has been published to: %s' % url)
-  print('You can also download it directly: %s.m3u8' % url)
+
+  #Write to file
+  open('out.m3u8', 'w').write(lines)
+
+  if not failures:
+    publish(lines, title)
+  else:
+    print('Partially successful: %d/%d' % (completions, completions-failures))
+    print('You can re-execute this program with the same parameters')
+
 
 
 if __name__ == '__main__':

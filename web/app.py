@@ -19,7 +19,7 @@ def play(key):
   file = 'userdata/%s' % os.path.splitext(key)[0]  #TODO
 
   if not os.path.isfile(file):
-    return jsonify({'code': -1, 'message': 'Key does not exist'})
+    return jsonify({'err': 1, 'message': 'Key does not exist'})
 
   meta = json.load(open(file, 'r'))
   if not key[-5:] == '.m3u8':
@@ -32,9 +32,9 @@ def publish():
   code = request.form.get('code')
 
   if not code:
-    return jsonify({'code': -1, 'message': 'Code cannot be empty'})
+    return jsonify({'err': 1, 'message': 'Code cannot be empty'})
   elif len(code) > 100*1024:
-    return jsonify({'code': -1, 'message': 'Code size cannot exceed 100K'})
+    return jsonify({'err': 1, 'message': 'Code size cannot exceed 100K'})
 
   key = filename(code)
   with open('userdata/%s' % key, 'w') as f:
@@ -45,7 +45,7 @@ def publish():
       'created_at': int(time.time())
     }))
 
-  return jsonify({'code': 0, 'data': key})
+  return jsonify({'err': 0, 'data': key})
 
 
 @app.route('/assets/<path:path>')
