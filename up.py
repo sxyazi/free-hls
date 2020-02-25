@@ -9,6 +9,9 @@ load_dotenv()
 argv += [''] * 3
 
 def publish(code, title=None):
+  if _('NOSERVER') == 'YES':
+    return print('The m3u8 file has been dumped to tmp/out.m3u8')
+
   try:
     r = requests.post('%s/publish' % _('APIURL'), data={'code': code, 'title': title}).json()
     if r['err']:
