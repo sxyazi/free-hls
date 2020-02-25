@@ -49,7 +49,7 @@ def command_generator(file):
   else:
     sub += ' -segment_time %d' % segment_time
 
-  return 'ffmpeg -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0 -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
+  return 'ffmpeg -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
 
 
 def main():
