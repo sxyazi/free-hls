@@ -1,6 +1,7 @@
 import os, sys, glob, shutil, requests
 from sys import argv
 from os import getenv as _
+from uploader import Handler
 from dotenv import load_dotenv
 from utils import exec, safename
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -12,34 +13,6 @@ def publish(code, title=None):
 
   if r['code'] == 0:
     return '%s/play/%s' % (_('APIURL'), r['data'])
-  else:
-    return None
-
-def upload_ali(file):
-
-  r = requests.post('https://kfupload.alibaba.com/mupload', data={
-    'name': 'image.png',
-    'scene': 'productImageRule'
-  }, files={
-    'file': ('image.png', open(file, 'rb'), 'image/png')
-  }).json()
-
-  if 'url' in r:
-    return r['url']
-  else:
-    return None
-
-def upload_yuque(file):
-
-  r = requests.post('https://www.yuque.com/api/upload/attach?ctoken=%s' % _('YUQUE_CTOKEN'), files={
-    'file': ('image.png', open(file, 'rb'), 'image/png')
-  }, headers={
-    'Referer': 'https://www.yuque.com/yuque/topics/new',
-    'Cookie': 'ctoken=%s; _yuque_session=%s' % (_('YUQUE_CTOKEN'), _('YUQUE_SESSION'))
-  }).json()
-
-  if 'data' in r and 'url' in r['data']:
-    return r['data']['url']
   else:
     return None
 
@@ -88,7 +61,7 @@ def main():
 
   i, lines = 0, open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
-  futures  = {executor.submit(upload_yuque, chunk): chunk for chunk in glob.glob('*.ts')}
+  futures  = {executor.submit(Handler, chunk): chunk for chunk in glob.glob('*.ts')}
 
   for future in as_completed(futures):
     lines = lines.replace(futures[future], future.result())
