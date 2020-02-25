@@ -70,7 +70,7 @@ def main():
   failures, completions = 0, 0
   lines    = open('out.m3u8', 'r').read()
   executor = ThreadPoolExecutor(max_workers=10)
-  futures  = {executor.submit(Handler, chunk): chunk for chunk in tsfiles(lines)}
+  futures  = {executor.submit(Handler(), chunk): chunk for chunk in tsfiles(lines)}
 
   for future in as_completed(futures):
     completions += 1
