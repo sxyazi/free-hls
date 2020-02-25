@@ -74,3 +74,9 @@ cd web
 gunicorn app:app -b 0.0.0.0:3395 -D
 ```
 
+
+## 相似服务
+
+- [https://github.com/sxzz/free-hls.js](https://github.com/sxzz/free-hls.js)
+- [https://github.com/sxzz/free-hls-live](https://github.com/sxzz/free-hls-live)
+- [https://github.com/MoeClub/Note/tree/master/ffmpeg](https://github.com/MoeClub/Note/tree/master/ffmpeg)
