@@ -35,8 +35,8 @@ def publish():
 
   if not code:
     return jsonify({'err': 1, 'message': 'Code cannot be empty'})
-  elif len(code) > 100*1024:
-    return jsonify({'err': 1, 'message': 'Code size cannot exceed 100K'})
+  elif len(code) > 500*1024:
+    return jsonify({'err': 1, 'message': 'Code size cannot exceed 500K'})
 
   key = filename(code)
   with open('userdata/%s' % key, 'w') as f:
