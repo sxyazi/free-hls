@@ -18,7 +18,7 @@
 
 ```bash
 apt install -y ffmpeg python3 python3-pip
-pip3 install python-dotenv
+pip3 install requests python-dotenv
 ```
 
 
@@ -74,3 +74,9 @@ cd web
 gunicorn app:app -b 0.0.0.0:3395 -D
 ```
 
+
+## 相似服务
+
+- [https://github.com/sxzz/free-hls.js](https://github.com/sxzz/free-hls.js)
+- [https://github.com/sxzz/free-hls-live](https://github.com/sxzz/free-hls-live)
+- [https://github.com/MoeClub/Note/tree/master/ffmpeg](https://github.com/MoeClub/Note/tree/master/ffmpeg)
