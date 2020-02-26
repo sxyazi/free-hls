@@ -1,6 +1,6 @@
 import requests
 
-def upload_ali(file):
+def handle(file):
   try:
     r = requests.post('https://kfupload.alibaba.com/mupload', data={
       'name': 'image.png',
