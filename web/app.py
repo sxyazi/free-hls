@@ -25,7 +25,9 @@ def play(key):
   if not key[-5:] == '.m3u8':
     return render_template('play.html', meta=meta)
 
-  return Response(meta['raw'], mimetype='application/vnd.apple.mpegurl')
+  response = Response(meta['raw'], mimetype='application/vnd.apple.mpegurl')
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  return response
 
 @app.route('/publish', methods=['POST'])
 def publish():
