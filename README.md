@@ -71,7 +71,7 @@ pip3 install Flask gunicorn
 
 ```bash
 cd web
-gunicorn app:app -b 0.0.0.0:3395 -D
+gunicorn app:app -b 0.0.0.0:3395 --workers=5 --threads=2 -D
 ```
 
 
