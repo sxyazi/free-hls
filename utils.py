@@ -6,12 +6,15 @@ import subprocess
 from os import getenv as _
 from constants import VERSION
 
-def api(url, data):
+def api(method, url, data=None):
+  if method == 'POST':
+    fn = requests.post
+  else:
+    fn = requests.get
   try:
-    r = requests.post('%s/%s' % (_('APIURL'), url), data=data, headers={
+    r = fn('%s/%s' % (_('APIURL'), url), data=data, headers={
       'API-Token': _('SECRET'),
-      'API-Version': VERSION
-    }).json()
+      'API-Version': VERSION}).json()
 
     if not r['err']:
       return r['data']

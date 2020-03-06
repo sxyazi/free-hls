@@ -1,9 +1,7 @@
 import os
-import json
-import time
-import base64
-import hashlib
+import time, json
 from dotenv import load_dotenv
+from utils import readfile, writefile
 from middleware import same_version, auth_required
 from flask import (Flask, Response, abort, request, jsonify, 
                     render_template, send_from_directory)
@@ -34,37 +32,32 @@ def play(key):
   response.headers.add('Access-Control-Allow-Origin', '*')
   return response
 
+@app.route('/videos/<skip>', methods=['GET'])
+@auth_required
+@same_version
+def videos(skip):
+  try:
+    skip = (int(skip) - 1) * 50
+  except:
+    skip = 0
+  return jsonify({'err': 0, 'data': readfile(skip)})
+
 @app.route('/publish', methods=['POST'])
 @auth_required
 @same_version
 def publish():
   code = request.form.get('code')
-
   if not code:
     return jsonify({'err': 1, 'message': 'Code cannot be empty'})
   elif len(code) > 500*1024:
     return jsonify({'err': 1, 'message': 'Code size cannot exceed 500K'})
 
-  key = filename(code)
-  with open('userdata/%s' % key, 'w') as f:
-    f.write(json.dumps({
-      'raw': code,
-      'code': base64.b64encode(code.encode('utf-8')).decode('ascii'),
-      'title': request.form.get('title') or 'untitled',
-      'created_at': int(time.time())
-    }))
-
+  key = writefile(code, request.form.get('title'))
   return jsonify({'err': 0, 'data': key})
-
 
 @app.route('/assets/<path:path>')
 def send_js(path):
   return send_from_directory('assets', path)
-
-
-def filename(code):
-  md5 = hashlib.md5(code.encode('utf-8')).hexdigest()
-  return md5[8:24]
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ def publish(code, title=None):
   if _('NOSERVER') == 'YES':
     return print('The m3u8 file has been dumped to tmp/out.m3u8')
 
-  r = api('publish', {'code': code, 'title': title})
+  r = api('POST', 'publish', {'code': code, 'title': title})
   if r:
     url = '%s/play/%s' % (_('APIURL'), r)
     print('This video has been published to: %s' % url)
