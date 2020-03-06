@@ -2,7 +2,7 @@ import os, sys, requests
 from sys import argv
 from os import getenv as _
 from dotenv import load_dotenv
-from utils import exec, tsfiles, safename, uploader, sameparams
+from utils import api, exec, tsfiles, safename, uploader, sameparams
 from concurrent.futures import ThreadPoolExecutor, as_completed
 load_dotenv()
 argv += [''] * 3
@@ -11,16 +11,11 @@ def publish(code, title=None):
   if _('NOSERVER') == 'YES':
     return print('The m3u8 file has been dumped to tmp/out.m3u8')
 
-  try:
-    r = requests.post('%s/publish' % _('APIURL'), data={'code': code, 'title': title}).json()
-    if r['err']:
-      print('Publish failed: %s' % r['message'])
-
-    url = '%s/play/%s' % (_('APIURL'), r['data'])
+  r = api('publish', {'code': code, 'title': title})
+  if r:
+    url = '%s/play/%s' % (_('APIURL'), r)
     print('This video has been published to: %s' % url)
     print('You can also download it directly: %s.m3u8' % url)
-  except:
-    print('Publish failed: network connection error')
 
 def bit_rate(file):
   return int(exec(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))

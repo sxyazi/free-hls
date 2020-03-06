@@ -1,5 +1,6 @@
 tmp/
 .env
 .idea
+.vscode
 userdata/
 **/__pycache__

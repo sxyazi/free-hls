@@ -3,7 +3,12 @@ import json
 import time
 import base64
 import hashlib
-from flask import Flask, Response, abort, request, jsonify, render_template, send_from_directory
+from dotenv import load_dotenv
+from middleware import same_version, auth_required
+from flask import (Flask, Response, abort, request, jsonify, 
+                    render_template, send_from_directory)
+
+load_dotenv()
 app = Flask(__name__)
 
 @app.route('/')
@@ -30,6 +35,8 @@ def play(key):
   return response
 
 @app.route('/publish', methods=['POST'])
+@auth_required
+@same_version
 def publish():
   code = request.form.get('code')
 

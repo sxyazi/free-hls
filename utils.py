@@ -1,9 +1,24 @@
-import os
-import re
+import os, re
 import shutil
+import requests
 import importlib
 import subprocess
 from os import getenv as _
+from constants import VERSION
+
+def api(url, data):
+  try:
+    r = requests.post('%s/%s' % (_('APIURL'), url), data=data, headers={
+      'API-Token': _('SECRET'),
+      'API-Version': VERSION
+    }).json()
+
+    if not r['err']:
+      return r['data']
+    print('Request failed: %s' % r['message'])
+
+  except:
+    print('Request failed: connection error')
 
 def exec(cmd, timeout=None, **kwargs):
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
