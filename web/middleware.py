@@ -7,7 +7,7 @@ def same_version(f):
   @wraps(f)
   def decorated(*args, **kwargs):
     version = request.headers.get('API-Version')
-    if version == VERSION:
+    if version == 'NONE' or version == VERSION:
       return f(*args, **kwargs)
     return jsonify({'err': 1, 'message': 'Version mismatch'})
 
