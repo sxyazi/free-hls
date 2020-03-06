@@ -48,6 +48,9 @@ python3 up.py test.mp4               #默认标题
 python3 up.py test.mp4 测试哦         #自定义标题
 python3 up.py test.mp4 test 5        #自定义分段大小
 python3 up.py test.mp4 test LIMITED  #限制码率（需重编码）
+
+python3 ls.py    #列出已上传视频
+python3 ls.py 3  #列出已上传视频（第3页，50每页）
 ```
 
 
