@@ -10,6 +10,8 @@
 - 视频编码：
 - ffmpeg 版本：
 - python 版本：
+- tmp/command.sh 内容：`这里写文件内容`
+- 视频文件（建议 Firefox Send）：
 
 
 ## 重现步骤
