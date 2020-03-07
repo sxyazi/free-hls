@@ -11,7 +11,6 @@
 - ffmpeg 版本：
 - python 版本：
 - tmp/command.sh 内容：`这里写文件内容`
-- 视频文件（建议 Firefox Send）：
 
 
 ## 重现步骤
@@ -23,8 +22,25 @@
 
 ## 附件
 
-附上图片或日志，日志请用格式：
+**日志内容：**
 
-```
+```bash
 这里写日志内容
 ```
+
+
+**ffmpeg -formats：**
+
+```bash
+这里写 ffmpeg -formats 的执行结果
+```
+
+
+**图片（如果有）：**
+
+
+
+**视频文件（如果有）：**
+
+*建议使用 https://send.firefox.com 上传视频附件*
+
