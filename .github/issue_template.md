@@ -32,15 +32,21 @@
 **ffmpeg -formats：**
 
 ```bash
-这里写 ffmpeg -formats 的执行结果
+ffmpeg -formats 执行结果：
+
 ```
 
 
 **图片（如果有）：**
 
-
+```bash
+图片地址：
+```
 
 **视频文件（如果有）：**
 
-*建议使用 https://send.firefox.com 上传视频附件*
+```bash
+# 推荐使用 https://send.firefox.com 上传视频
 
+视频下载地址：
+```
