@@ -2,5 +2,6 @@ tmp/
 .env
 .idea
 .vscode
+keys/
 userdata/
 **/__pycache__
