@@ -34,10 +34,13 @@ def exec(cmd, timeout=None, **kwargs):
   if p.returncode != 0:
     raise Exception(cmd, out, err.decode('utf-8'))
 
-  return out.decode('utf-8').strip()
+  return out
+
+def execstr(*args, **kwargs):
+  return exec(*args, **kwargs).decode('utf-8').strip()
 
 def tsfiles(m3u8):
-  return re.findall(r'^out\d+\.ts$', m3u8, re.M)
+  return re.findall(r'^(?:enc\.)?out\d+\.ts$', m3u8, re.M)
 
 def safename(file):
   return '"' + file.replace('"', '\\"') + '"'

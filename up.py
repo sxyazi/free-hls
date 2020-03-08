@@ -1,11 +1,37 @@
-import os, sys, requests
+import os, re
 from sys import argv
 from os import getenv as _
 from dotenv import load_dotenv
-from utils import api, exec, tsfiles, safename, uploader, sameparams
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from utils import api, exec, execstr, tsfiles, safename, uploader, sameparams
 load_dotenv()
 argv += [''] * 3
+
+def encrypt(code):
+  if not _('ENCRYPTION') == 'YES':
+    return code
+
+  for file in tsfiles(code):
+    if file.startswith('enc.'):
+      continue
+
+    print('Encrypting %s to enc.%s ... ' % (file, file), end='')
+    key = exec(['openssl','rand','16']).hex()
+    iv  = execstr(['openssl','rand','-hex','16'])
+    exec(['openssl','aes-128-cbc','-e','-in',file,'-out','enc.%s' % file,'-p','-nosalt','-iv',iv,'-K',key])
+
+    key_id = api('POST', 'key', {'iv': iv, 'key': key})
+    if not key_id:
+      print('failed')
+      open('out.m3u8', 'w').write(code)
+      exit()
+
+    print('done')
+    code = re.sub('(#EXTINF:.+$[\\r\\n]+^%s$)' % file, '#EXT-X-KEY:METHOD=AES-128,URI="%s/play/%s.key",IV=0x%s\n\\1' % (_('APIURL'), key_id, iv), code, 1, re.M)
+    code = code.replace(file, 'enc.%s' % file)
+
+  open('out.m3u8', 'w').write(code)
+  return code
 
 def publish(code, title=None):
   if _('NOSERVER') == 'YES':
@@ -18,10 +44,10 @@ def publish(code, title=None):
     print('You can also download it directly: %s.m3u8' % url)
 
 def bit_rate(file):
-  return int(exec(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))
+  return int(execstr(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))
 
 def video_codec(file):
-  codecs = exec(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
+  codecs = execstr(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
   return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
 
 def command_generator(file):
@@ -62,7 +88,7 @@ def main():
     open('command.sh', 'w').write(command)
 
   failures, completions = 0, 0
-  lines    = open('out.m3u8', 'r').read()
+  lines    = encrypt(open('out.m3u8', 'r').read())
   executor = ThreadPoolExecutor(max_workers=10)
   futures  = {executor.submit(uploader(), chunk): chunk for chunk in tsfiles(lines)}
 

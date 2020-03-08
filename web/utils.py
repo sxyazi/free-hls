@@ -2,11 +2,26 @@ import os
 import json, time
 import base64, hashlib
 
-def filename(code):
-  md5 = hashlib.md5(code.encode('utf-8')).hexdigest()
+def md5(s):
+  md5 = hashlib.md5(s.encode('utf-8')).hexdigest()
   return md5[8:24]
 
-def readfile(skip=0):
+def readkey(id):
+  return json.load(open('keys/%s' % id, 'r'))
+
+def writekey(key, iv):
+  id = md5(key + iv)
+
+  with open('keys/%s' % id, 'w') as f:
+    f.write(json.dumps({
+      'iv': iv,
+      'key': key,
+      'created_at': int(time.time())
+    }))
+
+  return id
+
+def listfile(skip=0):
   i, entities = 0, []
 
   try:
@@ -23,8 +38,11 @@ def readfile(skip=0):
   except: pass
   return entities
 
+def readfile(key):
+  return json.load(open('userdata/%s' % key, 'r'))
+
 def writefile(code, title=None):
-  key  = filename(code)
+  key  = md5(code)
   meta = {
     'key': key,
     'file': 'userdata/%s' % key,

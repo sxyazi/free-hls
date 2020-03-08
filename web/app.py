@@ -1,7 +1,7 @@
 import os
-import time, json
+import time, json, binascii
 from dotenv import load_dotenv
-from utils import readfile, writefile
+from utils import readkey, writekey, listfile, readfile, writefile
 from middleware import same_version, auth_required
 from flask import (Flask, Response, abort, request, jsonify, 
                     render_template, send_from_directory)
@@ -17,20 +17,38 @@ def hello():
 def favicon():
   return abort(404)
 
+@app.route('/key', methods=['POST'])
+@auth_required
+@same_version
+def key():
+  iv  = request.form.get('iv')
+  key = request.form.get('key')
+
+  if len(iv) != 32 or len(key) != 32:
+    return jsonify({'err': 1, 'message': 'Invalid key or iv'})
+
+  return jsonify({'err': 0, 'data': writekey(key, iv)})
+
 @app.route('/play/<key>')
 def play(key):
-  file = 'userdata/%s' % os.path.splitext(key)[0]  #TODO
+  real = os.path.splitext(key)[0]
 
-  if not os.path.isfile(file):
-    return jsonify({'err': 1, 'message': 'Key does not exist'})
+  try:
+    if key[-4:] == '.key':
+      meta = readkey(real)
+      r = Response(binascii.unhexlify(meta['key']), mimetype='application/octet-stream')
+      r.headers.add('Access-Control-Allow-Origin', '*')
+      return r
 
-  meta = json.load(open(file, 'r'))
-  if not key[-5:] == '.m3u8':
+    meta = readfile(real)
+    if key[-5:] == '.m3u8':
+      r = Response(meta['raw'], mimetype='application/vnd.apple.mpegurl')
+      r.headers.add('Access-Control-Allow-Origin', '*')
+      return r
+
     return render_template('play.html', meta=meta)
-
-  response = Response(meta['raw'], mimetype='application/vnd.apple.mpegurl')
-  response.headers.add('Access-Control-Allow-Origin', '*')
-  return response
+  except:
+    return jsonify({'err': 1, 'message': 'File does not exist'})
 
 @app.route('/videos/<skip>', methods=['GET'])
 @auth_required
@@ -40,7 +58,7 @@ def videos(skip):
     skip = (int(skip) - 1) * 50
   except:
     skip = 0
-  return jsonify({'err': 0, 'data': readfile(skip)})
+  return jsonify({'err': 0, 'data': listfile(skip)})
 
 @app.route('/publish', methods=['POST'])
 @auth_required
