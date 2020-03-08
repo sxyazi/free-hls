@@ -57,4 +57,10 @@ def sameparams(dir, command):
   return True
 
 def uploader():
-  return importlib.import_module('uploader.' + _('UPLOAD_DRIVE')).handle
+  handle = importlib.import_module('uploader.' + _('UPLOAD_DRIVE')).handle
+
+  def wrapper(file):
+    with open(file, 'rb') as f:
+      return handle(f)
+
+  return wrapper

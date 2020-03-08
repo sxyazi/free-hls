@@ -6,7 +6,7 @@ def handle(file):
       'name': 'image.png',
       'scene': 'productImageRule'
     }, files={
-      'file': ('image.png', open(file, 'rb'), 'image/png')
+      'file': ('image.png', file, 'image/png')
     }).json()
 
     return r['url']
