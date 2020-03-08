@@ -64,3 +64,8 @@ def uploader():
       return handle(f)
 
   return wrapper
+
+
+
+session = requests.Session()
+session.headers.update({'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/11A465 QQLiveBrowser/7.0.8 WebKitCore/UIWebView'})

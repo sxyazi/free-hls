@@ -1,9 +1,9 @@
-import requests
+from utils import session
 from os import getenv as _
 
 def handle(file):
   try:
-    r = requests.post('https://www.yuque.com/api/upload/attach?ctoken=%s' % _('YUQUE_CTOKEN'), files={
+    r = session.post('https://www.yuque.com/api/upload/attach?ctoken=%s' % _('YUQUE_CTOKEN'), files={
       'file': ('image.png', file, 'image/png')
     }, headers={
       'Referer': 'https://www.yuque.com/yuque/topics/new',
