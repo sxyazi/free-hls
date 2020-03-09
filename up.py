@@ -89,6 +89,9 @@ def main():
 
   failures, completions = 0, 0
   lines    = encrypt(open('out.m3u8', 'r').read())
+  for tsfile in tsfiles(lines):
+  if os.path.getsize(tsfile) >= (20 << 20):
+    exit(1)
   executor = ThreadPoolExecutor(max_workers=10)
   futures  = {executor.submit(uploader(), chunk): chunk for chunk in tsfiles(lines)}
 
