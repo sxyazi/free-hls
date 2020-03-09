@@ -90,9 +90,13 @@ def main():
 
   failures, completions = 0, 0
   lines    = encrypt(open('out.m3u8', 'r').read())
-  for tsfile in tsfiles(lines):
-  if os.path.getsize(tsfile) >= upload_limit[_('UPLOAD_DRIVE')]:
-    exit(1)
+
+  #TODO
+  for file in tsfiles(lines):
+    if os.path.getsize(file) >= upload_limit[_('UPLOAD_DRIVE')]:
+      print('file too large: %s' % file)
+      exit(1)
+
   executor = ThreadPoolExecutor(max_workers=10)
   futures  = {executor.submit(uploader(), chunk): chunk for chunk in tsfiles(lines)}
 
