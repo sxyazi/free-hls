@@ -6,7 +6,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from utils import api, exec, execstr, tsfiles, safename, uploader, sameparams
 load_dotenv()
 argv += [''] * 3
-upload_limit = {'yuque': 20<<20}
+
+def checker(code):
+  flag  = False
+  limit = uploader().MAX_LIMIT
+
+  for file in tsfiles(code):
+    if os.path.getsize(file) > limit:
+      flag = True
+      print('File too large: tmp/%s' % file)
+
+  return exit(1) if flag else code
 
 def encrypt(code):
   if not _('ENCRYPTION') == 'YES':
@@ -89,16 +99,9 @@ def main():
     open('command.sh', 'w').write(command)
 
   failures, completions = 0, 0
-  lines    = encrypt(open('out.m3u8', 'r').read())
-
-  #TODO
-  for file in tsfiles(lines):
-    if os.path.getsize(file) >= upload_limit[_('UPLOAD_DRIVE')]:
-      print('file too large: %s' % file)
-      exit(1)
-
+  lines    = checker(encrypt(open('out.m3u8', 'r').read()))
   executor = ThreadPoolExecutor(max_workers=10)
-  futures  = {executor.submit(uploader(), chunk): chunk for chunk in tsfiles(lines)}
+  futures  = {executor.submit(uploader().handle, chunk): chunk for chunk in tsfiles(lines)}
 
   for future in as_completed(futures):
     completions += 1
@@ -111,8 +114,6 @@ def main():
 
     lines = lines.replace(futures[future], result)
     print('[%s/%s] Uploaded %s to %s' % (completions, len(futures), futures[future], result))
-
-  print('\n')
 
   #Write to file
   open('out.m3u8', 'w').write(lines)

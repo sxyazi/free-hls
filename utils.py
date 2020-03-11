@@ -4,6 +4,7 @@ import requests
 import importlib
 import subprocess
 from os import getenv as _
+from functools import wraps
 from constants import VERSION
 
 def api(method, url, data=None):
@@ -60,14 +61,15 @@ def sameparams(dir, command):
   return True
 
 def uploader():
-  handle = importlib.import_module('uploader.' + _('UPLOAD_DRIVE')).handle
+  return importlib.import_module('uploader.' + _('UPLOAD_DRIVE')).Uploader
 
-  def wrapper(file):
-    with open(file, 'rb') as f:
-      return handle(f)
+def upload_wrapper(f):
+  @wraps(f)
+  def decorated(cls, file):
+    with open(file, 'rb') as g:
+      return f(cls, g)
 
-  return wrapper
-
+  return decorated
 
 
 session = requests.Session()
