@@ -1,7 +1,7 @@
 from utils import session, upload_wrapper
 
 class Uploader:
-  MAX_LIMIT = 5 << 20
+  MAX_BYTES = 5 << 20
 
   @classmethod
   @upload_wrapper

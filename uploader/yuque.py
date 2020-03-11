@@ -2,7 +2,7 @@ from os import getenv as _
 from utils import session, upload_wrapper
 
 class Uploader:
-  MAX_LIMIT = 10 << 20
+  MAX_BYTES = 10 << 20
 
   @classmethod
   @upload_wrapper

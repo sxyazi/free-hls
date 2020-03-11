@@ -9,7 +9,7 @@ argv += [''] * 3
 
 def checker(code):
   flag  = False
-  limit = uploader().MAX_LIMIT
+  limit = uploader().MAX_BYTES
 
   for file in tsfiles(code):
     if os.path.getsize(file) > limit:
