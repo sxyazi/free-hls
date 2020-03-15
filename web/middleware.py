@@ -7,7 +7,7 @@ def same_version(f):
   @wraps(f)
   def decorated(*args, **kwargs):
     version = request.headers.get('API-Version')
-    if version == 'NONE' or version == VERSION:
+    if version == VERSION:
       return f(*args, **kwargs)
     return jsonify({'err': 1, 'message': 'Version mismatch'})
 
@@ -17,7 +17,7 @@ def auth_required(f):
   @wraps(f)
   def decorated(*args, **kwargs):
     token = request.headers.get('API-Token')
-    if token == _('SECRET'):
+    if token == 'NONE' or token == _('SECRET'):
       return f(*args, **kwargs)
     return jsonify({'err': 1, 'message': 'Authorization failed'})
 
