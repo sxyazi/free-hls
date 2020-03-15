@@ -31,7 +31,7 @@ def encrypt(code):
     iv  = execstr(['openssl','rand','-hex','16'])
     exec(['openssl','aes-128-cbc','-e','-in',file,'-out','enc.%s' % file,'-p','-nosalt','-iv',iv,'-K',key])
 
-    key_id = api('POST', 'key', {'iv': iv, 'key': key})
+    key_id = api('POST', 'key', data={'iv': iv, 'key': key})
     if not key_id:
       print('failed')
       open('out.m3u8', 'w').write(code)
@@ -48,7 +48,7 @@ def publish(code, title=None):
   if _('NOSERVER') == 'YES':
     return print('The m3u8 file has been dumped to tmp/out.m3u8')
 
-  r = api('POST', 'publish', {'code': code, 'title': title})
+  r = api('POST', 'publish', data={'code': code, 'title': title})
   if r:
     url = '%s/play/%s' % (_('APIURL'), r)
     print('This video has been published to: %s' % url)

@@ -1,19 +1,19 @@
 import os, re
-import shutil
 import requests
 import importlib
 import subprocess
+import shutil, hashlib
 from os import getenv as _
 from functools import wraps
 from constants import VERSION
 
-def api(method, url, data=None):
+def api(method, url, **kwargs):
   if method == 'POST':
     fn = requests.post
   else:
     fn = requests.get
   try:
-    r = fn('%s/%s' % (_('APIURL'), url), data=data, headers={
+    r = fn('%s/%s' % (_('APIURL'), url), **kwargs, headers={
       'API-Token': _('SECRET'),
       'API-Version': VERSION}).json()
 
@@ -23,6 +23,9 @@ def api(method, url, data=None):
 
   except:
     print('Request failed: connection error')
+
+def md5(b):
+  return hashlib.md5(b).hexdigest()
 
 def exec(cmd, timeout=None, **kwargs):
   p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

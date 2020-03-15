@@ -1,13 +1,16 @@
 import os
+from os import getenv as _
 import time, json, binascii
 from dotenv import load_dotenv
-from utils import readkey, writekey, listfile, readfile, writefile
+from werkzeug.utils import secure_filename
 from middleware import same_version, auth_required
-from flask import (Flask, Response, abort, request, jsonify, 
-                    render_template, send_from_directory)
+from utils import readkey, writekey, listfile, readfile, writefile
+from flask import (Flask, Response, abort, request, jsonify,
+                    make_response, render_template, send_from_directory)
 
 load_dotenv()
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 20 << 20
 
 @app.route('/')
 def hello():
@@ -60,6 +63,24 @@ def videos(skip):
     skip = 0
   return jsonify({'err': 0, 'data': listfile(skip)})
 
+@app.route('/upload', methods=['POST'])
+@auth_required
+@same_version
+def upload():
+  if not _('ENABLE_UPLOAD') == 'YES':
+    return jsonify({'err': 1, 'message': 'Upload is not enabled'})
+
+  if 'file' not in request.files:
+    return jsonify({'err': 1, 'message': 'No file part'})
+
+  file = request.files['file']
+  if not file or file.filename == '':
+    return jsonify({'err': 1, 'message': 'No selected file'})
+
+  name = secure_filename(file.filename)
+  file.save(os.path.join('uploads', name))
+  return jsonify({'err': 0, 'data': name})
+
 @app.route('/publish', methods=['POST'])
 @auth_required
 @same_version
@@ -76,6 +97,12 @@ def publish():
 @app.route('/assets/<path:path>')
 def send_js(path):
   return send_from_directory('assets', path)
+
+@app.route('/uploads/<path:path>')
+def send_file(path):
+  r = make_response(send_from_directory('uploads', path))
+  r.headers.add('Access-Control-Allow-Origin', '*')
+  return r
 
 
 if __name__ == '__main__':
