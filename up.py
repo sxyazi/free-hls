@@ -1,4 +1,4 @@
-import os, re
+import os, re, json
 from sys import argv
 from os import getenv as _
 from dotenv import load_dotenv
@@ -48,7 +48,8 @@ def publish(code, title=None):
   if _('NOSERVER') == 'YES':
     return print('The m3u8 file has been dumped to tmp/out.m3u8')
 
-  r = api('POST', 'publish', data={'code': code, 'title': title})
+  r = api('POST', 'publish', data={'code': code, 'title': title,
+                                   'params': json.dumps(uploader().params())})
   if r:
     url = '%s/play/%s' % (_('APIURL'), r)
     print('This video has been published to: %s' % url)
@@ -66,7 +67,7 @@ def command_generator(file):
   sub          = ''
   rate         = bit_rate(file)
   vcodec       = video_codec(file)
-  max_bits    = uploader().MAX_BYTES * 8
+  max_bits     = uploader().MAX_BYTES * 8
   segment_time = min(20, int(max_bits / (rate * 1.35)))
 
 

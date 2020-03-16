@@ -69,7 +69,7 @@ def uploader():
 def upload_wrapper(f):
   @wraps(f)
   def decorated(cls, file):
-    with open(file, 'rb') as g:
+    with open(file, 'rb+') as g:
       return f(cls, g)
 
   return decorated

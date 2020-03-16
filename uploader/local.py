@@ -5,6 +5,10 @@ class Uploader:
   MAX_BYTES = 20 << 20
 
   @classmethod
+  def params(cls):
+    return {'padding': 0}
+
+  @classmethod
   @upload_wrapper
   def handle(cls, file):
     file = file.read()

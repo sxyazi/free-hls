@@ -4,7 +4,7 @@ import time, json, binascii
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from middleware import same_version, auth_required
-from utils import readkey, writekey, listfile, readfile, writefile
+from utils import readkey, writekey, listfile, readfile, writefile, validjson
 from flask import (Flask, Response, abort, request, jsonify,
                     make_response, render_template, send_from_directory)
 
@@ -86,12 +86,15 @@ def upload():
 @same_version
 def publish():
   code = request.form.get('code')
+  params = request.form.get('params')
   if not code:
     return jsonify({'err': 1, 'message': 'Code cannot be empty'})
   elif len(code) > 500*1024:
     return jsonify({'err': 1, 'message': 'Code size cannot exceed 500K'})
+  elif not validjson(params):
+    return jsonify({'err': 1, 'message': 'Invalid params'})
 
-  key = writefile(code, request.form.get('title'))
+  key = writefile(code, params, request.form.get('title'))
   return jsonify({'err': 0, 'data': key})
 
 @app.route('/assets/<path:path>')

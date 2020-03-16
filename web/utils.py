@@ -41,12 +41,13 @@ def listfile(skip=0):
 def readfile(key):
   return json.load(open('userdata/%s' % key, 'r'))
 
-def writefile(code, title=None):
+def writefile(code, params, title=None):
   key  = md5(code)
   meta = {
     'key': key,
     'file': 'userdata/%s' % key,
     'title': title or 'untitled',
+    'params': params or '{}',
     'created_at': int(time.time())
   }
 
@@ -60,3 +61,10 @@ def writefile(code, title=None):
     f.write(json.dumps(meta))
 
   return key
+
+def validjson(s):
+  try:
+    json.loads(s)
+    return True
+  except:
+    return False
