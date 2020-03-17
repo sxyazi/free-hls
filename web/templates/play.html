@@ -116,7 +116,7 @@ try {
 var player = videojs('player', {
   html5: {
     hls: {
-      overrideNative: !videojs.browser.IS_SAFARI,
+      overrideNative: params.padding > 0 || !videojs.browser.IS_SAFARI,
     }
   },
   playbackRates: [0.5, 1, 1.5, 2]
