@@ -12,7 +12,7 @@ def checker(code):
   limit = uploader().MAX_BYTES
 
   for file in tsfiles(code):
-    if os.path.getsize(file) > limit:
+    if os.path.getsize(file) >= limit:
       flag = True
       print('File too large: tmp/%s' % file)
 
@@ -102,7 +102,7 @@ def main():
 
   failures, completions = 0, 0
   lines    = checker(encrypt(open('out.m3u8', 'r').read()))
-  executor = ThreadPoolExecutor(max_workers=10)
+  executor = ThreadPoolExecutor(max_workers=15)
   futures  = {executor.submit(uploader().handle, chunk): chunk for chunk in tsfiles(lines)}
 
   for future in as_completed(futures):
@@ -123,7 +123,7 @@ def main():
   if not failures:
     publish(lines, title)
   else:
-    print('Partially successful: %d/%d' % (completions, completions-failures))
+    print('Partially successful: %d/%d' % (completions-failures, completions))
     print('You can re-execute this program with the same parameters')
 
 
