@@ -65,7 +65,7 @@ python3 ls.py 3  #列出已上传视频（第3页，50每页）
 
 ```bash
 apt install -y python3 python3-pip
-pip3 install Flask gunicorn python-dotenv
+pip3 install Flask peewee gunicorn python-dotenv
 ```
 
 

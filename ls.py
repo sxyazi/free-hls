@@ -1,20 +1,20 @@
-import time
 from sys import argv
 from utils import api
 from os import getenv as _
+from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()
 argv += [''] * 1
 
 def main():
   try:
-    skip = int(argv[1])
+    page = int(argv[1])
   except:
-    skip = 0
+    page = 1
 
-  for video in api('GET', 'videos/%d' % skip):
+  for video in api('GET', 'videos/%d' % page):
     link = '%s/play/%s' % (_('APIURL'), video['key'])
-    date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(video['created_at']))
+    date = datetime.strptime(video['created_at'], '%a, %d %b %Y %H:%M:%S GMT')
 
     print('%s\t%s\t%s' % (video['title'], date, link))
 

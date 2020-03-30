@@ -1,10 +1,12 @@
 import os
-from os import getenv as _
 import time, json, binascii
+from os import getenv as _
 from dotenv import load_dotenv
+from model import Video, Secret
+from utils import md5, validjson
 from werkzeug.utils import secure_filename
+from playhouse.shortcuts import model_to_dict
 from middleware import same_version, auth_required
-from utils import readkey, writekey, listfile, readfile, writefile, validjson
 from flask import (Flask, Response, abort, request, jsonify,
                     make_response, render_template, send_from_directory)
 
@@ -14,7 +16,7 @@ app.config['MAX_CONTENT_LENGTH'] = 20 << 20
 
 @app.route('/')
 def hello():
-  return 'Hello, World!'
+  return 'Hello, Free-HLS!'
 
 @app.route('/favicon.ico')
 def favicon():
@@ -30,7 +32,8 @@ def key():
   if len(iv) != 32 or len(key) != 32:
     return jsonify({'err': 1, 'message': 'Invalid key or iv'})
 
-  return jsonify({'err': 0, 'data': writekey(key, iv)})
+  secret = Secret.create(iv=iv, key=key)
+  return jsonify({'err': 0, 'data': secret.id})
 
 @app.route('/play/<key>')
 def play(key):
@@ -38,30 +41,32 @@ def play(key):
 
   try:
     if key[-4:] == '.key':
-      meta = readkey(real)
-      r = Response(binascii.unhexlify(meta['key']), mimetype='application/octet-stream')
+      secret = Secret.get_by_id(real)
+      r = Response(binascii.unhexlify(secret.key), mimetype='application/octet-stream')
       r.headers.add('Access-Control-Allow-Origin', '*')
       return r
 
-    meta = readfile(real)
+    video = Video.get(Video.key == real)
     if key[-5:] == '.m3u8':
-      r = Response(meta['raw'], mimetype='application/vnd.apple.mpegurl')
+      r = Response(video.code, mimetype='application/vnd.apple.mpegurl')
       r.headers.add('Access-Control-Allow-Origin', '*')
       return r
 
-    return render_template('play.html', meta=meta)
+    return render_template('play.html', video=video)
   except:
-    return jsonify({'err': 1, 'message': 'File does not exist'})
+    return jsonify({'err': 1, 'message': 'Resource does not exist'})
 
-@app.route('/videos/<skip>', methods=['GET'])
+@app.route('/videos/<page>', methods=['GET'])
 @auth_required
 @same_version
-def videos(skip):
+def videos(page):
   try:
-    skip = (int(skip) - 1) * 50
+    page = int(page)
   except:
-    skip = 0
-  return jsonify({'err': 0, 'data': listfile(skip)})
+    page = 1
+
+  pagination = Video.select(Video.key, Video.title, Video.created_at).order_by(Video.id).paginate(page, 50)
+  return jsonify({'err': 0, 'data': [model_to_dict(video) for video in pagination]})
 
 @app.route('/upload', methods=['POST'])
 @auth_required
@@ -94,7 +99,8 @@ def publish():
   elif not validjson(params):
     return jsonify({'err': 1, 'message': 'Invalid params'})
 
-  key = writefile(code, params, request.form.get('title'))
+  key = md5(code)
+  Video.replace(key = key, code = code, params = params, title = request.form.get('title')).execute()
   return jsonify({'err': 0, 'data': key})
 
 @app.route('/assets/<path:path>')

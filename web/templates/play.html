@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>{{ meta.title }}</title>
+  <title>{{ video.title }}</title>
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.6.6/dist/video-js.min.css">
@@ -67,18 +67,18 @@
 </head>
 <body>
 
-<h1>{{ meta.title }}</h1>
+<h1>{{ video.title }}</h1>
 
 <div class="wrapper">
 	<video id=player width=960 height=540 class="video-js vjs-default-skin vjs-big-play-centered" controls>
-	  <source src="data:application/vnd.apple.mpegurl;base64,{{meta.code}}" type="application/vnd.apple.mpegurl">
+	  <source src="/play/{{video.key}}.m3u8" type="application/vnd.apple.mpegurl">
 	</video>
 </div>
 
 <script>
 var params;
 try {
-  params = JSON.parse('{{ meta.params | safe }}');
+  params = JSON.parse('{{ video.params | safe }}');
 } catch (e) {
   params = {}
 }
