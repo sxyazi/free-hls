@@ -1,8 +1,6 @@
-import os, re
-import requests
-import importlib
-import subprocess
-import shutil, hashlib
+import os, re, glob
+import requests, importlib
+import shutil, hashlib, subprocess
 from os import getenv as _
 from functools import wraps
 from constants import VERSION
@@ -44,7 +42,7 @@ def execstr(*args, **kwargs):
   return exec(*args, **kwargs).decode('utf-8').strip()
 
 def tsfiles(m3u8):
-  return re.findall(r'^(?:enc\.)?out\d+\.ts$', m3u8, re.M)
+  return re.findall(r'^(?:enc\.)?(?:rep\.)?out\d+\.ts$', m3u8, re.M)
 
 def safename(file):
   return '"' + file.replace('"', '\\"') + '"'
@@ -73,6 +71,37 @@ def upload_wrapper(f):
       return f(cls, g)
 
   return decorated
+
+def bit_rate(file):
+  return int(execstr(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))
+
+def maxbit_rate(file):
+  name = os.path.splitext(file)[0]
+  os.system('ffmpeg -y -i %s -c copy -map 0:v:0 -f segment -segment_time 1 -break_non_keyframes 1 %s.seg%%05d.ts' % (file, name))
+  return bit_rate(sorted(glob.glob('%s.seg*.ts' % name), key=os.path.getsize)[-1])
+
+def video_codec(file):
+  codecs = execstr(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
+  return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
+
+def video_duration(file):
+  return float(execstr(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',file]))
+
+def genslice(file, time):
+  sub          = ''
+  rate         = bit_rate(file)
+  vcodec       = video_codec(file)
+  max_bits     = uploader().MAX_BYTES * 8
+  segment_time = min(20, int(max_bits / (rate * 1.35)))
+
+  #SEGMENT_TIME
+  sub += ' -segment_time %d' % (time or segment_time)
+
+  return 'ffmpeg -y -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
+
+def genrepair(file, newfile, maxbits):
+  maxrate = maxbits / video_duration(file) / (maxbit_rate(file) / bit_rate(file))
+  return 'ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -vcodec h264 -acodec copy -bsf:v h264_mp4toannexb -b:v %d -maxrate %d -bufsize %d %s' % (file, maxrate*0.9, maxrate, maxrate/1.5, newfile)
 
 
 session = requests.Session()
