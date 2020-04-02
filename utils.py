@@ -1,4 +1,4 @@
-import os, re, glob
+import os, re, glob, math
 import requests, importlib
 import shutil, hashlib, subprocess
 from os import getenv as _
@@ -77,8 +77,11 @@ def bit_rate(file):
 
 def maxbit_rate(file):
   name = os.path.splitext(file)[0]
-  os.system('ffmpeg -y -i %s -c copy -map 0:v:0 -f segment -segment_time 1 -break_non_keyframes 1 %s.seg%%05d.ts' % (file, name))
-  return bit_rate(sorted(glob.glob('%s.seg*.ts' % name), key=os.path.getsize)[-1])
+  os.system('ffmpeg -y -i %s -c copy -map 0:v -f segment -segment_time 1 -break_non_keyframes 1 %s.seg%%05d.ts' % (file, name))
+  vrate = bit_rate(sorted(glob.glob('%s.seg*.ts' % name), key=os.path.getsize)[-1])
+
+  list(map(os.remove, glob.glob('*.seg*.ts')))
+  return vrate
 
 def video_codec(file):
   codecs = execstr(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
@@ -97,11 +100,11 @@ def genslice(file, time):
   #SEGMENT_TIME
   sub += ' -segment_time %d' % (time or segment_time)
 
-  return 'ffmpeg -y -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
+  return 'ffmpeg -y -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
 
 def genrepair(file, newfile, maxbits):
-  maxrate = maxbits / video_duration(file) / (maxbit_rate(file) / bit_rate(file))
-  return 'ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -vcodec h264 -acodec copy -bsf:v h264_mp4toannexb -b:v %d -maxrate %d -bufsize %d %s' % (file, maxrate*0.9, maxrate, maxrate/1.5, newfile)
+  maxrate = maxbits / math.ceil(video_duration(file)) / max(1, maxbit_rate(file) / bit_rate(file))
+  return 'ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -vcodec h264 -acodec copy -bsf:v h264_mp4toannexb -b:v %s -maxrate %s -bufsize %s %s' % (file, maxrate*0.9, maxrate, maxrate*1.5, newfile)
 
 
 session = requests.Session()

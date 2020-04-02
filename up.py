@@ -49,15 +49,15 @@ def repairer(code):
 
   for file in tsfiles(code):
     if os.path.getsize(file) > limit:
-      newfile = 'rep.%s' % file
-      os.system(genrepair(file, newfile, limit * 8))
+      tmp = 'rep.%s' % file
+      os.system(genrepair(file, tmp, limit * 8))
+      os.rename(tmp, file)
 
-      if os.path.getsize(newfile) > limit:
+      if os.path.getsize(file) > limit:
         open('out.m3u8', 'w').write(code)
-        print('File too large: tmp/%s' % newfile)
+        print('File too large: tmp/%s' % file)
+        print('Adjust parameters or continue execution with the same parameters')
         exit(1)
-
-      code = code.replace(file, newfile)
 
   open('out.m3u8', 'w').write(code)
   return code
