@@ -77,7 +77,7 @@ def bit_rate(file):
 
 def maxbit_rate(file):
   name = os.path.splitext(file)[0]
-  os.system('ffmpeg -y -i %s -c copy -map 0:v -f segment -segment_time 1 -break_non_keyframes 1 %s.seg%%05d.ts' % (file, name))
+  os.system('ffmpeg -y -i %s -c copy -map 0:v:0 -f segment -segment_time 1 -break_non_keyframes 1 %s.seg%%05d.ts' % (file, name))
   vrate = bit_rate(sorted(glob.glob('%s.seg*.ts' % name), key=os.path.getsize)[-1])
 
   list(map(os.remove, glob.glob('*.seg*.ts')))
@@ -100,7 +100,7 @@ def genslice(file, time):
   #SEGMENT_TIME
   sub += ' -segment_time %d' % (time or segment_time)
 
-  return 'ffmpeg -y -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
+  return 'ffmpeg -y -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
 
 def genrepair(file, newfile, maxbits):
   maxrate = maxbits / math.ceil(video_duration(file)) / max(1, maxbit_rate(file) / bit_rate(file))
