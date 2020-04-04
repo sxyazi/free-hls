@@ -11,13 +11,12 @@ def api(method, url, **kwargs):
   else:
     fn = requests.get
   try:
-    r = fn('%s/%s' % (_('APIURL'), url), **kwargs, headers={
+    ok, data = fn('%s/%s' % (_('APIURL'), url), **kwargs, headers={
       'API-Token': _('SECRET'),
       'API-Version': VERSION}).json()
 
-    if not r['err']:
-      return r['data']
-    print('Request failed: %s' % r['message'])
+    if ok: return data
+    print('Request failed: %s' % data)
 
   except:
     print('Request failed: connection error')
