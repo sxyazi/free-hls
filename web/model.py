@@ -3,8 +3,12 @@ from peewee import *
 
 db = SqliteDatabase('data.db')
 
+class Tag(Model):
+  name = CharField()
+  created_at = DateTimeField(default=datetime.datetime.now)
+
 class Video(Model):
-  key = CharField(unique=True)
+  slug = CharField(unique=True)
   code = TextField()
   title = CharField()
   params = TextField()

@@ -13,7 +13,7 @@ def main():
     page = 1
 
   for video in api('GET', 'videos/%d' % page):
-    link = '%s/play/%s' % (_('APIURL'), video['key'])
+    link = '%s/play/%s' % (_('APIURL'), video['slug'])
     date = datetime.strptime(video['created_at'], '%a, %d %b %Y %H:%M:%S GMT')
 
     print('%s\t%s\t%s' % (video['title'], date, link))
