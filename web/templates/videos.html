@@ -42,7 +42,7 @@
       <div class="mdui-col-xs-10 mdui-col-offset-xs-1">
         <h1 class="mdui-text-color-theme">视频列表</h1>
         <div class="mdui-table-fluid">
-          <table class="mdui-table mdui-table-hoverable" pagination="paginate">
+          <table class="mdui-table mdui-table-hoverable" pagination="GET:paginate">
             <thead>
               <tr>
                 <th width="50">ID</th>
@@ -69,7 +69,7 @@
 var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
-pagination(function (videos) {
+var refresh = pagination(function (videos) {
   var html = '';
   for (var i=0; i<videos.length; i++) {
       html
@@ -82,12 +82,21 @@ pagination(function (videos) {
         +  '  <td>' + dateformat(videos[i].created_at) + '</td>'
         +  '  <td>'
         +  '    <a href="/video/' + videos[i].id + '" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">edit</i></a>'
-        +  '    <a class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">delete</i></a>'
+        +  '    <a onclick="removeVideo(' + videos[i].id + ')" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">delete</i></a>'
         +  '  </td>'
         +  '</tr>';
     }
 
     return html;
 });
+
+function removeVideo(video_id) {
+  mdui.confirm('确定要移除此视频吗？', function () {
+    api('POST', 'video/' + video_id, {remove: 1}, function () {
+      refresh();
+      snackbar('移除成功');
+    });
+  });
+}
 </script>
 </html>

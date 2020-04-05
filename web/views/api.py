@@ -58,6 +58,6 @@ def paginate():
   return 1, {
     'pre': 50,
     'page': pagination.get_page(),
-    'count': pagination.get_page_count(),
+    'count': Video.select().count(),
     'data': [model_to_dict(video) for video in pagination.get_object_list()]
   }

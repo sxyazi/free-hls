@@ -19,11 +19,12 @@ class Video(Model):
   @classmethod
   def remove(cls, id):
     with db.atomic():
-      video = cls.get_by_id(id)
-      cls.delete().where(cls.id == id).execute()
-      Tag.unlink(video.tag, video.video)
+      tags = [vtag.tag for vtag in VideoTag.select().join(Tag).where(VideoTag.video == id)]
+      for tag in tags: Tag.unlink(tag, id)
 
-    return 1
+      cls.delete().where(cls.id == id).execute()
+
+    return 1, id
 
   @classmethod
   def createOrUpdate(cls, **kwargs):
@@ -71,12 +72,9 @@ class Tag(Model):
     cls.relink(tags, video_id)
 
   @classmethod
-  def remove(cls, name):
-    pass
-
-  @classmethod
   def unlink(cls, tag, video_id):
-    tag = cls.get(cls.name == tag)
+    if isinstance(tag, str):
+      tag = cls.get(cls.name == tag)
     if not VideoTag.select().where(VideoTag.tag == tag, VideoTag.video != video_id).exists():
       tag.delete_instance()
 
