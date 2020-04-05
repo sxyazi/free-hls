@@ -1,10 +1,11 @@
 import datetime
 from peewee import *
-from utils import md5, validjson
-db = SqliteDatabase('data.db')
+from utils import md5, validjson, filtertags
+db = SqliteDatabase('data.db', pragmas={'foreign_keys': 1})
 
 class Video(Model):
   slug = CharField(unique=True)
+  tags = CharField()
   code = TextField()
   title = CharField()
   params = TextField()
@@ -16,18 +17,6 @@ class Video(Model):
     db_table = 'videos'
 
   @classmethod
-  def save(cls, code, title, params):
-    if not code:
-      return 0, 'Code cannot be empty'
-    elif len(code) > 500*1024:
-      return 0, 'Code size cannot exceed 500K'
-    elif not validjson(params):
-      return 0, 'Invalid params'
-
-    slug = md5(code)
-    return 1, cls.replace(slug = slug, code = code, title = title, params = params).execute()
-
-  @classmethod
   def remove(cls, id):
     with db.atomic():
       video = cls.get_by_id(id)
@@ -35,6 +24,82 @@ class Video(Model):
       Tag.unlink(video.tag, video.video)
 
     return 1
+
+  @classmethod
+  def createOrUpdate(cls, **kwargs):
+    if not kwargs['slug']:
+      return 0, 'Slug cannot be empty'
+    if not kwargs['code']:
+      return 0, 'Code cannot be empty'
+    elif len(kwargs['code']) > 500*1024:
+      return 0, 'Code size cannot exceed 500K'
+    elif not validjson(kwargs['params']):
+      return 0, 'Invalid params'
+    kwargs['tags'] = filtertags(kwargs['tags'])
+
+    with db.atomic():
+      if kwargs['id']:
+        video_id = kwargs['id']
+        cls.update(**kwargs).where(cls.id == kwargs['id']).execute()
+      else:
+        kwargs.pop('id')
+        video_id = cls.create(**kwargs).id
+      Tag.add(kwargs['tags'], video_id)
+
+    return 1, video_id
+
+
+class Tag(Model):
+  name = CharField(unique=True)
+  created_at = DateTimeField(default=datetime.datetime.now)
+
+  class Meta:
+    database = db
+    db_table = 'tags'
+
+  @classmethod
+  def add(cls, tags, video_id):
+    tags       = tags.split(',')
+    all_tags   = [tag.name for tag in Tag.select().where(Tag.name << tags)]
+    video_tags = [vtag.tag.name for vtag in VideoTag.select().where(VideoTag.video == video_id)]
+
+    for tag in set(tags) - set(all_tags):
+      cls.create(name = tag)
+    for tag in set(video_tags) - set(tags):
+      cls.unlink(tag, video_id)
+
+    cls.relink(tags, video_id)
+
+  @classmethod
+  def remove(cls, name):
+    pass
+
+  @classmethod
+  def unlink(cls, tag, video_id):
+    tag = cls.get(cls.name == tag)
+    if not VideoTag.select().where(VideoTag.tag == tag, VideoTag.video != video_id).exists():
+      tag.delete_instance()
+
+  @classmethod
+  def relink(cls, tags, video_id):
+    VideoTag.delete().where(VideoTag.video == video_id).execute()
+
+    _tags = {tag.name: tag for tag in cls.select().where(cls.name << tags)}
+    for tag in tags:
+      VideoTag.create(tag = _tags[tag].id, video = video_id)
+
+
+class VideoTag(Model):
+  tag = ForeignKeyField(Tag, backref='tags', on_delete='CASCADE')
+  video = ForeignKeyField(Video, on_delete='CASCADE')
+  created_at = DateTimeField(default=datetime.datetime.now)
+
+  class Meta:
+    database = db
+    db_table = 'video_tags'
+    indexes = (
+      (('tag', 'video'), True),
+    )
 
 
 class Secret(Model):
@@ -52,36 +117,6 @@ class Secret(Model):
     return 1, secret.id
 
 
-class Tag(Model):
-  name = CharField(unique=True)
-  created_at = DateTimeField(default=datetime.datetime.now)
-
-  class Meta:
-    database = db
-    db_table = 'tags'
-
-  @classmethod
-  def add(cls, name):
-    cls.create(name = name)
-
-  @classmethod
-  def remove(cls, name):
-    pass
-
-  @classmethod
-  def unlink(cls, tag_id, video_id):
-    if not VideoTag.select().where(VideoTag.tag == tag_id, VideoTag.video != video_id).exists():
-      cls.delete().where(cls.id == tag_id).delete_instance()
-
-
-class VideoTag(Model):
-  tag = ForeignKeyField(Tag, backref='tags', on_delete='CASCADE')
-  video = ForeignKeyField(Video, backref='tags', on_delete='CASCADE')
-  created_at = DateTimeField(default=datetime.datetime.now)
-
-  class Meta:
-    database = db
-    db_table = 'video_tags'
 
 
 db.create_tables([Tag, Video, Secret, VideoTag], safe=True)

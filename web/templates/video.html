@@ -31,7 +31,7 @@
   <div class="mdui-appbar mdui-appbar-fixed">
     <div class="mdui-toolbar mdui-color-theme">
       <a href="javascript:;" class="mdui-typo-headline">FreeHLS</a>
-      <a href="javascript:;" class="mdui-typo-title">发布视频</a>
+      <a href="javascript:;" class="mdui-typo-title">{{ '编辑' if video else '发布' }}视频</a>
       <div class="mdui-toolbar-spacer"></div>
       <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
     </div>
@@ -41,15 +41,15 @@
     <ul class="mdui-list">
       <li class="mdui-list-item mdui-ripple">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">ondemand_video</i>
-        <div class="mdui-list-item-content">视频管理</div>
+        <div class="mdui-list-item-content"><a href="/videos">视频管理</a></div>
       </li>
       <li class="mdui-list-item mdui-ripple">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-deep-orange">device_hub</i>
-        <div class="mdui-list-item-content">标签管理</div>
+        <div class="mdui-list-item-content"><a href="/tags">标签管理</a></div>
       </li>
       <li class="mdui-list-item mdui-ripple mdui-list-item-active">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
-        <div class="mdui-list-item-content">发布视频</div>
+        <div class="mdui-list-item-content"><a href="{{ '' if video else '/video' }}">{{ '编辑' if video else '发布' }}视频</a></div>
       </li>
     </ul>
   </div>
@@ -63,7 +63,7 @@
             <div class="mdui-card-primary-subtitle">Information</div>
           </div>
           <div class="mdui-card-menu">
-            <button onclick="savePost()" class="mdui-btn mdui-btn-icon mdui-text-color-white">
+            <button onclick="saveVideo()" class="mdui-btn mdui-btn-icon mdui-text-color-white">
               <i class="mdui-icon material-icons">check</i>
             </button>
             <button class="mdui-btn mdui-btn-icon mdui-text-color-white">
@@ -71,26 +71,28 @@
             </button>
           </div>
           <div class="mdui-card-content">
-            <form id="form-post" action="" method="POST">
+            <form id="form-video" action="" method="POST">
               <div class="mdui-textfield">
                 <label class="mdui-textfield-label">标题</label>
-                <input name="title" type="title" class="mdui-textfield-input">
+                <input name="title" type="title" class="mdui-textfield-input" value="{{ video.title }}">
               </div>
 
               <div class="mdui-m-b-1 mdui-m-t-2">
                 <label class="mdui-textfield-label">标签</label>
-                <input id="input-tags" name="tags" type="text" class="demo-default" value="awesome,neat">
+                <input id="input-tags" name="tags" type="text" class="demo-default" value="{{ video.tags }}">
               </div>
 
               <div class="mdui-m-b-1 mdui-m-t-2">
                 <label class="mdui-textfield-label">参数</label>
-                <textarea name="params" class="mdui-textfield-input">{"params": 0}</textarea>
+                <textarea name="params" class="mdui-textfield-input">{{ video.params or '{"padding": 0}' }}</textarea>
               </div>
 
               <div class="mdui-textfield">
                 <label class="mdui-textfield-label">M3U8 代码</label>
-                <textarea name="code" class="mdui-textfield-input"></textarea>
+                <textarea name="code" class="mdui-textfield-input">{{ video.code }}</textarea>
               </div>
+
+              <input name="id" type="hidden" value="{{ video.id }}">
             </form>
           </div>
         </div>
@@ -106,51 +108,29 @@
 var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
-function savePost() {
-  api('POST', 'publish', $('#form-post').serialize(), function (res) {
+function saveVideo() {
+  api('POST', 'publish', $('#form-video').serialize(), function (res) {
     snackbar('保存成功');
   });
 }
 
 $('#input-tags').selectize({
-  valueField: 'title',
-  labelField: 'title',
-  searchField: 'title',
+  valueField: 'name',
+  labelField: 'name',
+  searchField: 'name',
   options: [],
-  create: false,
-  render: {
-    option: function(item, escape) {
-      var actors = [];
-      for (var i = 0, n = item.abridged_cast.length; i < n; i++) {
-          actors.push('<span>' + escape(item.abridged_cast[i].name) + '</span>');
-      }
-
-      return '<div>' +
-          '<img src="' + escape(item.posters.thumbnail) + '" alt="">' +
-          '<span class="title">' +
-              '<span class="name">' + escape(item.title) + '</span>' +
-          '</span>' +
-          '<span class="description">' + escape(item.synopsis || 'No synopsis available at this time.') + '</span>' +
-          '<span class="actors">' + (actors.length ? 'Starring ' + actors.join(', ') : 'Actors unavailable') + '</span>' +
-      '</div>';
-    }
-  },
+  create: true,
   load: function(query, callback) {
     if (!query.length) return callback();
     $.ajax({
-      url: 'http://api.rottentomatoes.com/api/public/v1.0/movies.json',
+      url: '/tags',
       type: 'GET',
-      dataType: 'jsonp',
-      data: {
-          q: query,
-          page_limit: 10,
-          apikey: 'w82gs68n8m2gur98m6du5ugc'
-      },
+      data: {q: query},
       error: function() {
-          callback();
+        callback();
       },
       success: function(res) {
-          callback(res.movies);
+        callback(res[1]);
       }
     });
   }

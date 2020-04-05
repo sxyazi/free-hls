@@ -10,3 +10,6 @@ def validjson(s):
     return True
   except:
     return False
+
+def filtertags(s):
+  return ','.join(list(dict.fromkeys(filter(None, s.split(',')))))

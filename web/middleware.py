@@ -23,12 +23,20 @@ def auth_required(f):
 
   return decorated
 
+def api_response(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    resp = f(*args, **kwargs)
+    return jsonify(resp) if isinstance(resp, tuple) else resp
+
+  return decorated
+
 def api_combined(f):
   @wraps(f)
   @same_version
   @auth_required
+  @api_response
   def decorated(*args, **kwargs):
-    resp = f(*args, **kwargs)
-    return jsonify(resp) if isinstance(resp, tuple) else resp
+    return f(*args, **kwargs)
 
   return decorated
