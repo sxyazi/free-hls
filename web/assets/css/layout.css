@@ -1,0 +1,24 @@
+a {
+  text-decoration: none;
+}
+
+.pagination {
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.pagination span {
+  float: left;
+}
+.pagination a {
+  padding: 2px 8px;
+  display: inline-block;
+}
+.pagination a:hover {
+  opacity: .75;
+}
+.pagination .links {
+  display: flex;
+  align-items: center;
+}

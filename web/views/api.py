@@ -53,7 +53,7 @@ def publish():
 @app.route('/paginate')
 @api_combined
 def paginate():
-  pagination = PaginatedQuery(Video.select().order_by(Video.id), 50)
+  pagination = PaginatedQuery(Video.select().order_by(Video.id.desc()), 50)
 
   return 1, {
     'pre': 50,

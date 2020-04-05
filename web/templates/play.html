@@ -46,10 +46,6 @@
       position: relative !important;
     }
 
-    .vjs-big-play-button {
-      margin-top: -130px !important;
-    }
-
     @media (max-width: 1200px) {
       body{
         background: #1d1d1d;
@@ -67,7 +63,10 @@
 </head>
 <body>
 
-<h1>{{ video.title }}</h1>
+{% if not notitle %}
+  <style>.vjs-big-play-button { margin-top: -130px !important; }</style>
+  <h1>{{ video.title }}</h1>
+{% endif %}
 
 <div class="wrapper">
 	<video id=player width=960 height=540 class="video-js vjs-default-skin vjs-big-play-centered" controls>

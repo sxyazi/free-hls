@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>发布视频</title>
+  <title>{{ '更新' if video else '发布' }}视频</title>
+  <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/selectize@0.12.2/dist/css/selectize.css">
   <style>
@@ -30,8 +31,8 @@
               mdui-bottom-nav-fixed mdui-appbar-with-toolbar mdui-drawer-body-left">
   <div class="mdui-appbar mdui-appbar-fixed">
     <div class="mdui-toolbar mdui-color-theme">
-      <a href="javascript:;" class="mdui-typo-headline">FreeHLS</a>
-      <a href="javascript:;" class="mdui-typo-title">{{ '编辑' if video else '发布' }}视频</a>
+      <a href="/" class="mdui-typo-headline">FreeHLS</a>
+      <a href="javascript:;" class="mdui-typo-title">{{ '更新' if video else '发布' }}视频</a>
       <div class="mdui-toolbar-spacer"></div>
       <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
     </div>
@@ -41,15 +42,15 @@
     <ul class="mdui-list">
       <li class="mdui-list-item mdui-ripple">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">ondemand_video</i>
-        <div class="mdui-list-item-content"><a href="/videos">视频管理</a></div>
+        <a class="mdui-list-item-content" href="/videos">视频管理</a>
       </li>
       <li class="mdui-list-item mdui-ripple">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-deep-orange">device_hub</i>
-        <div class="mdui-list-item-content"><a href="/tags">标签管理</a></div>
+        <a class="mdui-list-item-content" href="/tags">标签管理</a>
       </li>
       <li class="mdui-list-item mdui-ripple mdui-list-item-active">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
-        <div class="mdui-list-item-content"><a href="{{ '' if video else '/video' }}">{{ '编辑' if video else '发布' }}视频</a></div>
+        <a class="mdui-list-item-content" href="{{ '' if video else '/video' }}">{{ '更新' if video else '发布' }}视频</a>
       </li>
     </ul>
   </div>

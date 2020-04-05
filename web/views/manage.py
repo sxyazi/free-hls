@@ -7,13 +7,16 @@ from middleware import api_response, api_combined
 @app.route('/tag')
 @app.route('/tag/<id>')
 def tag():
-  return render_template('tags.html')
+  return 1,1
 
 @app.route('/tags')
 @api_response
 def tags():
-  q = '%%%s%%' % request.args['q']
-  return 1, [model_to_dict(tag) for tag in Tag.select().where(Tag.name ** q).limit(10)]
+  if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    q = '%%%s%%' % request.args['q']
+    return 1, [model_to_dict(tag) for tag in Tag.select().where(Tag.name ** q).limit(10)]
+
+  return render_template('tags.html')
 
 
 @app.route('/video')

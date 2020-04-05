@@ -9,7 +9,7 @@
 <body class="mdui-theme-layout-dark mdui-theme-primary-grey mdui-theme-accent-red mdui-bottom-nav-fixed mdui-appbar-with-toolbar">
   <div class="mdui-appbar mdui-appbar-fixed">
     <div class="mdui-toolbar mdui-color-theme">
-      <a href="javascript:;" class="mdui-typo-headline">FreeHLS</a>
+      <a href="/" class="mdui-typo-headline">FreeHLS</a>
       <a href="javascript:;" class="mdui-typo-title">首页</a>
       <div class="mdui-toolbar-spacer"></div>
       <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
@@ -22,18 +22,11 @@
       <div class="mdui-col-xs-6 mdui-col-offset-xs-3">
         <p class="mdui-m-b-1 mdui-text-color-theme-secondary">最新标签</p>
         <div class="tag-items">
+          {% for tag in latest_tags.values() %}
           <div class="mdui-chip mdui-color-theme-800">
-            <span class="mdui-chip-title">良医</span>
+            <span class="mdui-chip-title">{{ tag.name }}</span>
           </div>
-          <div class="mdui-chip mdui-color-theme-800">
-            <span class="mdui-chip-title">人间失格</span>
-          </div>
-          <div class="mdui-chip mdui-color-theme-800">
-            <span class="mdui-chip-title">绝命毒师</span>
-          </div>
-          <div class="mdui-chip mdui-color-theme-800">
-            <span class="mdui-chip-title">隐形人</span>
-          </div>
+          {% endfor %}
           <div class="mdui-chip mdui-color-theme-800">
             <span class="mdui-chip-title">更多…</span>
           </div>
@@ -52,7 +45,7 @@
 
           <div class="mdui-card-content mdui-p-y-0">
             <p>公告板：欢迎使用 Free-HLS 系统</p>
-            <p>系统运行正常。迄今为止共创建标签 <b>4</b> 个，发布视频 <b>33</b> 个</p>
+            <p>系统运行正常。迄今为止共创建标签 <b>{{ total_tags }}</b> 个，发布视频 <b>{{ total_videos }}</b> 个</p>
           </div>
         </div>
       </div>
@@ -61,55 +54,31 @@
     <!-- 视频列表 -->
     <div class="list mdui-row mdui-m-y-3">
       <div class="mdui-col-xs-6 mdui-col-offset-xs-3">
+        {% for tagid, videos in tags_videos.items() %}
         <ul class="mdui-list mdui-color-theme-800 mdui-m-b-3">
-          <li class="mdui-subheader-inset mdui-color-theme-800">良医</li>
+          <li class="mdui-subheader-inset mdui-color-theme-800">{{ latest_tags[tagid].name }}</li>
+          {% for video in videos %}
           <li class="mdui-list-item mdui-ripple">
-            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-secondx ">play_arrow</i>
-            <div class="mdui-list-item-content">
-              <div class="mdui-list-item-title">第一季 EP01</div>
-              <div class="mdui-list-item-text">发布于 2020/4/3 11:44</div>
-            </div>
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-secondx mdui-color-theme-700">play_arrow</i>
+            <a href="/playlist/{{tagid}}?watch={{video.slug}}" class="mdui-list-item-content">
+              <div class="mdui-list-item-title">{{ video.title }}</div>
+              <div class="mdui-list-item-text">发布于 {{ video.created_at }}</div>
+            </a>
             <i class="mdui-list-item-icon mdui-icon material-icons">navigate_next</i>
           </li>
+          {% endfor %}
           <li class="mdui-list-item mdui-ripple">
-            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-secondx ">play_arrow</i>
-            <div class="mdui-list-item-content">
-              <div class="mdui-list-item-title">第一季 EP02</div>
-              <div class="mdui-list-item-text">发布于 2020/4/3 11:44</div>
-            </div>
-            <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-grey-400">navigate_next</i>
-          </li>
-          <li class="mdui-list-item mdui-ripple">
-            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-secondx ">play_arrow</i>
-            <div class="mdui-list-item-content">
-              <div class="mdui-list-item-title">第一季 EP02</div>
-              <div class="mdui-list-item-text">发布于 2020/4/3 11:44</div>
-            </div>
-            <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-grey-400">navigate_next</i>
-          </li>
-          <li class="mdui-list-item mdui-ripple">
-            <div class="mdui-list-item-content">
+            <a href="/playlist/{{ tagid }}" class="mdui-list-item-content">
               <div class="mdui-list-item-text mdui-text-center">查看全部</div>
-            </div>
+            </a>
           </li>
         </ul>
-
-        <ul class="mdui-list mdui-color-theme-800 mdui-m-b-3">
-          <li class="mdui-subheader-inset mdui-color-theme-800">人间失格</li>
-          <li class="mdui-list-item mdui-ripple">
-            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-secondx ">play_arrow</i>
-            <div class="mdui-list-item-content">
-              <div class="mdui-list-item-title">人间失格 全</div>
-              <div class="mdui-list-item-text">发布于 2020/4/3 11:44</div>
-            </div>
-            <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-grey-400">navigate_next</i>
-          </li>
-        </ul>
+        {% endfor %}
       </div>
     </div>
   </div>
 
-  <div class="mdui-bottom-nav mdui-color-theme-800">
+  <!-- <div class="mdui-bottom-nav mdui-color-theme-800">
     <a href="javascript:;" class="mdui-ripple mdui-ripple-white mdui-bottom-nav-active">
       <i class="mdui-icon material-icons">live_tv</i>
       <label>Movies</label>
@@ -126,7 +95,7 @@
       <i class="mdui-icon material-icons">library_books</i>
       <label>Newsstand</label>
     </a>
-  </div>
+  </div> -->
 </body>
 <script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
 </html>
