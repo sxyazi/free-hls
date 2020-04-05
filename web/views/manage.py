@@ -10,7 +10,12 @@ from flask import request, make_response, render_template
 @app.route('/tag/<id>', methods=['GET', 'POST'])
 @mng_combined
 def tag(id = 0):
-  pass
+  if request.method == 'POST':
+    Tag.update(name=request.form.get('name')).where(Tag.id == id).execute()
+    return 1, id
+
+  tag = Tag.get_by_id(id)
+  return render_template('tag.html', tag=tag)
 
 @app.route('/tags')
 @mng_combined

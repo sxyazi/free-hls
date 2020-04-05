@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>标签管理</title>
+  <title>更新标签</title>
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
 </head>
@@ -12,7 +12,7 @@
   <div class="mdui-appbar mdui-appbar-fixed">
     <div class="mdui-toolbar mdui-color-theme">
       <a href="/" class="mdui-typo-headline">FreeHLS</a>
-      <a href="javascript:;" class="mdui-typo-title">标签管理</a>
+      <a href="javascript:;" class="mdui-typo-title">更新标签</a>
       <div class="mdui-toolbar-spacer"></div>
       <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
     </div>
@@ -42,21 +42,26 @@
   <div class="mdui-container-fluid">
     <div class="situation mdui-row mdui-m-y-3">
       <div class="mdui-col-xs-10 mdui-col-offset-xs-1">
-        <h1 class="mdui-text-color-theme">标签列表</h1>
-        <div class="mdui-table-fluid">
-          <table class="mdui-table mdui-table-hoverable" pagination="GET:tags?list">
-            <thead>
-              <tr>
-                <th width="50">ID</th>
-                <th width="350">标题</th>
-                <th width="160">创建时间</th>
-                <th width="50">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-          <div class="pagination mdui-p-y-2 mdui-p-x-3 mdui-text-right mdui-text-color-theme-500"></div>
+        <div class="mdui-card mdui-color-theme-800">
+          <div class="mdui-card-primary">
+            <div class="mdui-card-primary-title">标签信息</div>
+            <div class="mdui-card-primary-subtitle">Information</div>
+          </div>
+          <div class="mdui-card-menu">
+            <button onclick="saveTag()" class="mdui-btn mdui-btn-icon mdui-text-color-white">
+              <i class="mdui-icon material-icons">check</i>
+            </button>
+          </div>
+          <div class="mdui-card-content">
+            <form id="form-tag" action="" method="POST">
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">名称</label>
+                <input name="name" type="name" class="mdui-textfield-input" value="{{ tag.name }}">
+              </div>
+
+              <input name="id" type="hidden" value="{{ tag.id }}">
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -69,23 +74,10 @@
 var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
-pagination(function (tags) {
-  var html = '';
-  for (var i=0; i<tags.length; i++) {
-      html
-        += '<tr>'
-        +  '  <td>' + tags[i].id + '</td>'
-        +  '  <td>'
-        +  '    <a href="/playlist/' + tags[i].id + '" target="_blank" class="mdui-text-color-theme-100">' + tags[i].name + '</a>'
-        +  '  </td>'
-        +  '  <td>' + dateformat(tags[i].created_at) + '</td>'
-        +  '  <td>'
-        +  '    <a href="/tag/' + tags[i].id + '" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">edit</i></a>'
-        +  '  </td>'
-        +  '</tr>';
-    }
-
-    return html;
-});
+function saveTag() {
+  api('POST', 'tag/' + $('input[name="id"]').val(), $('#form-tag').serialize(), function (res) {
+    snackbar('保存成功');
+  });
+}
 </script>
 </html>
