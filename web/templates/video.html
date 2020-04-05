@@ -128,7 +128,7 @@ function saveVideo() {
     }
 
     snackbar('创建成功，即将刷新');
-    setTimeout(function () { location.href = '/video/' + res; }, 1000);
+    setTimeout(function () { location.href = '/video/' + res.id; }, 1000);
   });
 }
 

@@ -40,7 +40,7 @@ def publish(code, title=None):
   r = api('POST', 'publish', data={'code': code, 'title': title,
                                    'params': json.dumps(uploader().params())})
   if r:
-    url = '%s/play/%s' % (_('APIURL'), r)
+    url = '%s/play/%s' % (_('APIURL'), r['slug'])
     print('This video has been published to: %s' % url)
     print('You can also download it directly: %s.m3u8' % url)
 

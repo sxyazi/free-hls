@@ -1,6 +1,7 @@
 import datetime
 from peewee import *
 from utils import md5, validjson, filtertags
+from playhouse.shortcuts import model_to_dict
 db = SqliteDatabase('data.db', pragmas={'foreign_keys': 1})
 
 class Video(Model):
@@ -40,14 +41,14 @@ class Video(Model):
 
     with db.atomic():
       if kwargs['id']:
-        video_id = kwargs['id']
         cls.update(**kwargs).where(cls.id == kwargs['id']).execute()
+        video = cls.get_by_id(kwargs['id'])
       else:
         kwargs.pop('id')
-        video_id = cls.create(**kwargs).id
-      Tag.add(kwargs['tags'], video_id)
+        video = cls.create(**kwargs)
+      Tag.add(kwargs['tags'], video.id)
 
-    return 1, video_id
+    return 1, model_to_dict(video)
 
 
 class Tag(Model):
@@ -61,7 +62,7 @@ class Tag(Model):
   @classmethod
   def add(cls, tags, video_id):
     tags       = tags.split(',') if tags else []
-    all_tags   = [tag.name for tag in Tag.select().where(Tag.name << tags)]
+    all_tags   = [tag.name for tag in cls.select().where(cls.name << tags)]
     video_tags = [vtag.tag.name for vtag in VideoTag.select().where(VideoTag.video == video_id)]
 
     for tag in set(tags) - set(all_tags):

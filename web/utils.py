@@ -12,4 +12,4 @@ def validjson(s):
     return False
 
 def filtertags(s):
-  return ','.join(list(dict.fromkeys(filter(None, s.split(',')))))
+  return ','.join(list(dict.fromkeys(filter(None, s.split(','))))) if s else ''
