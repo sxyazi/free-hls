@@ -3,9 +3,9 @@ function api(method, url, data, callback) {
       url: '/' + url,
       data: data,
       type: method,
-      beforeSend: function(xhr){
-        xhr.setRequestHeader('API-Token', SECRET);
-        xhr.setRequestHeader('API-Version', VERSION);
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('API-Token', window.SECRET || '');
+        xhr.setRequestHeader('API-Version', window.VERSION || '');
       },
       success: function(r) {
         var ok = r[0], data = r[1];

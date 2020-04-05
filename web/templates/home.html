@@ -23,13 +23,13 @@
         <p class="mdui-m-b-1 mdui-text-color-theme-secondary">最新标签</p>
         <div class="tag-items">
           {% for tag in latest_tags.values() %}
-          <div class="mdui-chip mdui-color-theme-800">
+          <a href="/playlist/{{ tag.id }}" class="mdui-chip mdui-color-theme-800">
             <span class="mdui-chip-title">{{ tag.name }}</span>
-          </div>
+          </a>
           {% endfor %}
-          <div class="mdui-chip mdui-color-theme-800">
+          <!-- <div class="mdui-chip mdui-color-theme-800">
             <span class="mdui-chip-title">更多…</span>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

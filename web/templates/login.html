@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>标签管理</title>
+  <title>登录</title>
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/selectize@0.12.2/dist/css/selectize.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
 </head>
 <body class="mdui-theme-layout-dark mdui-theme-primary-grey mdui-theme-accent-blue
               mdui-bottom-nav-fixed mdui-appbar-with-toolbar mdui-drawer-body-left">
   <div class="mdui-appbar mdui-appbar-fixed">
     <div class="mdui-toolbar mdui-color-theme">
       <a href="/" class="mdui-typo-headline">FreeHLS</a>
-      <a href="javascript:;" class="mdui-typo-title">标签管理</a>
+      <a href="javascript:;" class="mdui-typo-title">登录</a>
       <div class="mdui-toolbar-spacer"></div>
       <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
     </div>
@@ -26,7 +25,7 @@
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">ondemand_video</i>
         <a class="mdui-list-item-content" href="/videos">视频管理</a>
       </li>
-      <li class="mdui-list-item mdui-ripple mdui-list-item-active">
+      <li class="mdui-list-item mdui-ripple">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-deep-orange">device_hub</i>
         <a class="mdui-list-item-content" href="/tags">标签管理</a>
       </li>
@@ -34,9 +33,9 @@
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
         <a class="mdui-list-item-content" href="/video">发布视频</a>
       </li>
-      <li class="mdui-list-item mdui-ripple">
-        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-yellow-200">lock</i>
-        <a class="mdui-list-item-content" href="/login">退出登录</a>
+      <li class="mdui-list-item mdui-ripple mdui-list-item-active">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-yellow-200">lock_open</i>
+        <a class="mdui-list-item-content" href="/login">登录账号</a>
       </li>
     </ul>
   </div>
@@ -44,21 +43,24 @@
   <div class="mdui-container-fluid">
     <div class="situation mdui-row mdui-m-y-3">
       <div class="mdui-col-xs-10 mdui-col-offset-xs-1">
-        <h1 class="mdui-text-color-theme">标签列表</h1>
-        <div class="mdui-table-fluid">
-          <table class="mdui-table mdui-table-hoverable" pagination="GET:tags?list">
-            <thead>
-              <tr>
-                <th width="50">ID</th>
-                <th width="350">标题</th>
-                <th width="160">创建时间</th>
-                <th width="50">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-          <div class="pagination mdui-p-y-2 mdui-p-x-3 mdui-text-right mdui-text-color-theme-500"></div>
+        <div class="mdui-card mdui-color-theme-800">
+          <div class="mdui-card-primary">
+            <div class="mdui-card-primary-title">登录</div>
+            <div class="mdui-card-primary-subtitle">Login</div>
+          </div>
+          <div class="mdui-card-menu">
+            <button onclick="login()" class="mdui-btn mdui-btn-icon mdui-text-color-white">
+              <i class="mdui-icon material-icons">check</i>
+            </button>
+          </div>
+          <div class="mdui-card-content">
+            <form id="form-login" action="" method="POST">
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">密钥</label>
+                <input name="secret" type="secret" class="mdui-textfield-input">
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -67,28 +69,13 @@
 <script src="/assets/js/utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/selectize@0.12.2/dist/js/standalone/selectize.min.js"></script>
 <script>
-var SECRET = '{{ SECRET }}',
-    VERSION = '{{ VERSION }}';
-
-pagination(function (tags) {
-  var html = '';
-  for (var i=0; i<tags.length; i++) {
-      html
-        += '<tr>'
-        +  '  <td>' + tags[i].id + '</td>'
-        +  '  <td>'
-        +  '    <a href="/playlist/' + tags[i].id + '" target="_blank" class="mdui-text-color-theme-100">' + tags[i].name + '</a>'
-        +  '  </td>'
-        +  '  <td>' + dateformat(tags[i].created_at) + '</td>'
-        +  '  <td>'
-        +  '    <a href="/tag/' + tags[i].id + '" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">edit</i></a>'
-        +  '  </td>'
-        +  '</tr>';
-    }
-
-    return html;
-});
+function login () {
+  api('POST', 'login', $('#form-login').serialize(), function () {
+    snackbar('登录成功，即将跳转');
+    setTimeout(function () { location.href = '/videos'; }, 1000);
+  });
+}
 </script>
 </html>

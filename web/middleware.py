@@ -1,7 +1,7 @@
 from os import getenv as _
 from functools import wraps
 from constants import VERSION
-from flask import request, jsonify
+from flask import request, jsonify, redirect
 
 def same_version(f):
   @wraps(f)
@@ -13,7 +13,7 @@ def same_version(f):
 
   return decorated
 
-def auth_required(f):
+def api_authorize(f):
   @wraps(f)
   def decorated(*args, **kwargs):
     token = request.headers.get('API-Token')
@@ -34,7 +34,26 @@ def api_response(f):
 def api_combined(f):
   @wraps(f)
   @same_version
-  @auth_required
+  @api_authorize
+  @api_response
+  def decorated(*args, **kwargs):
+    return f(*args, **kwargs)
+
+  return decorated
+
+def mng_authorize(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    secret = request.cookies.get('secret')
+    if secret == _('SECRET'):
+      return f(*args, **kwargs)
+    return redirect('/login')
+
+  return decorated
+
+def mng_combined(f):
+  @wraps(f)
+  @mng_authorize
   @api_response
   def decorated(*args, **kwargs):
     return f(*args, **kwargs)
