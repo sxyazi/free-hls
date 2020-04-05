@@ -67,9 +67,11 @@
             <button onclick="saveVideo()" class="mdui-btn mdui-btn-icon mdui-text-color-white">
               <i class="mdui-icon material-icons">check</i>
             </button>
-            <button class="mdui-btn mdui-btn-icon mdui-text-color-white">
+            {% if video %}
+            <button onclick="removeVideo('{{ video.id }}')" class="mdui-btn mdui-btn-icon mdui-text-color-white">
               <i class="mdui-icon material-icons">delete</i>
             </button>
+            {% endif %}
           </div>
           <div class="mdui-card-content">
             <form id="form-video" action="" method="POST">
@@ -110,8 +112,28 @@ var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
 function saveVideo() {
+  var selectize = $('#input-tags').data('selectize');
+  if (!selectize.getValue()) {
+    selectize.addOption({name: '未标记'});
+    selectize.setValue('未标记');
+  }
+
   api('POST', 'publish', $('#form-video').serialize(), function (res) {
-    snackbar('保存成功');
+    if ($('input[name="id"]').val()) {
+      return snackbar('保存成功');
+    }
+
+    snackbar('创建成功，即将刷新');
+    setTimeout(function () { location.href = '/video/' + res; }, 1000);
+  });
+}
+
+function removeVideo(video_id) {
+  mdui.confirm('确定要移除此视频吗？', function () {
+    api('POST', 'video/' + video_id, {remove: 1}, function () {
+      snackbar('移除成功，即将跳转');
+      setTimeout(function () { location.href = '/videos'; }, 1000);
+    });
   });
 }
 

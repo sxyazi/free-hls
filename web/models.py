@@ -36,7 +36,7 @@ class Video(Model):
       return 0, 'Code size cannot exceed 500K'
     elif not validjson(kwargs['params']):
       return 0, 'Invalid params'
-    kwargs['tags'] = filtertags(kwargs['tags'])
+    kwargs['tags'] = filtertags(kwargs['tags']) or '未标记'
 
     with db.atomic():
       if kwargs['id']:
@@ -60,7 +60,7 @@ class Tag(Model):
 
   @classmethod
   def add(cls, tags, video_id):
-    tags       = tags.split(',')
+    tags       = tags.split(',') if tags else []
     all_tags   = [tag.name for tag in Tag.select().where(Tag.name << tags)]
     video_tags = [vtag.tag.name for vtag in VideoTag.select().where(VideoTag.video == video_id)]
 

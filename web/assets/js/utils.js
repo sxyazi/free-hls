@@ -88,6 +88,8 @@ function pagination (callback, page) {
       pagination(callback, $(this).attr('switch'));
     });
   });
+
+  return function () { pagination(callback, page); }
 }
 
 function dateformat(date) {
