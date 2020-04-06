@@ -31,7 +31,7 @@ function snackbar(msg, callback) {
   })
 }
 
-function pagination (callback, page) {
+function pagination(callback, page) {
   var table = $('[pagination]');
   var p = table.attr('pagination').split(':'), method = p[0], url = p[1];
   url += (url.indexOf('?') == -1 ? '?' : '&') + 'page=' + (page || 1);
@@ -41,7 +41,7 @@ function pagination (callback, page) {
     var pre = r.pre,
         cur = r.page,
         count = r.count,
-        pages = Math.ceil(count / pre),
+        pages = Math.ceil(count / pre) || 1,
         paginator = '<span>共 ' + count + ' 项</span><div class="links">';
 
     // 上一页
