@@ -58,6 +58,7 @@
     $('[watch]').removeClass('mdui-color-theme-600');
     $(this).addClass('mdui-color-theme-600');
     $('iframe').attr('src', '/play/' + $(this).attr('watch') + '?notitle=1');
+    history.pushState(null, '', '/playlist/{{tag.id}}?watch=' + $(this).attr('watch'));
   });
 </script>
 </html>
