@@ -11,8 +11,7 @@ from flask import request, make_response, render_template
 @mng_combined
 def tag(id = 0):
   if request.method == 'POST':
-    Tag.update(name=request.form.get('name')).where(Tag.id == id).execute()
-    return 1, id
+    return Tag.edit(id, name=request.form.get('name'))
 
   tag = Tag.get_by_id(id)
   return render_template('tag.html', tag=tag)

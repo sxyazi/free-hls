@@ -63,7 +63,7 @@ class Tag(Model):
   def add(cls, tags, video_id):
     tags       = tags.split(',') if tags else []
     all_tags   = [tag.name for tag in cls.select().where(cls.name << tags)]
-    video_tags = [vtag.tag.name for vtag in VideoTag.select().where(VideoTag.video == video_id)]
+    video_tags = [vtag.tag.name for vtag in VideoTag.select().join(Tag).where(VideoTag.video == video_id)]
 
     for tag in set(tags) - set(all_tags):
       cls.create(name = tag)
@@ -71,6 +71,23 @@ class Tag(Model):
       cls.unlink(tag, video_id)
 
     cls.relink(tags, video_id)
+
+  @classmethod
+  def edit(cls, tag_id, **kwargs):
+    tag = cls.get_by_id(tag_id)
+    if 'name' in kwargs and not kwargs['name']:
+      return 0, 'Name cannot be empty'
+
+    with db.atomic():
+      cls.update(**kwargs).where(cls.id == tag).execute()
+
+      # Replace videos `tags` attr
+      videos = [vtag.video for vtag in VideoTag.select().join(Video).where(VideoTag.tag == tag)]
+      for video in videos:
+        video.tags = ','.join([kwargs['name'] if t == tag.name else t for t in filtertags(video.tags).split(',')])
+        video.save()
+
+    return 1, tag.id
 
   @classmethod
   def unlink(cls, tag, video_id):

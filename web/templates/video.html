@@ -40,7 +40,7 @@
 
   <div class="mdui-drawer">
     <ul class="mdui-list">
-      <li class="mdui-list-item mdui-ripple">
+      <li class="mdui-list-item mdui-ripple {{ 'mdui-list-item-active' if video else '' }}">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">ondemand_video</i>
         <a class="mdui-list-item-content" href="/videos">视频管理</a>
       </li>
@@ -48,9 +48,9 @@
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-deep-orange">device_hub</i>
         <a class="mdui-list-item-content" href="/tags">标签管理</a>
       </li>
-      <li class="mdui-list-item mdui-ripple mdui-list-item-active">
+      <li class="mdui-list-item mdui-ripple {{ '' if video else 'mdui-list-item-active' }}">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
-        <a class="mdui-list-item-content" href="{{ '' if video else '/video' }}">{{ '更新' if video else '发布' }}视频</a>
+        <a class="mdui-list-item-content" href="/video">发布视频</a>
       </li>
       <li class="mdui-list-item mdui-ripple">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-yellow-200">lock</i>
@@ -127,7 +127,7 @@ function saveVideo() {
       return snackbar('保存成功');
     }
 
-    snackbar('创建成功，即将刷新');
+    snackbar('创建成功，即将跳转');
     setTimeout(function () { location.href = '/video/' + res.id; }, 1000);
   });
 }
