@@ -117,6 +117,10 @@ class VideoTag(Model):
       (('tag', 'video'), True),
     )
 
+  @classmethod
+  def videos(cls, tag):
+    return [vtag.video for vtag in cls.select().join(Video).where(cls.tag == tag)]
+
 
 class Secret(Model):
   iv = CharField()

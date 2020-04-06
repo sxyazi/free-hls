@@ -1,6 +1,6 @@
 from . import app
 from os import getenv as _
-from models import Tag, Video
+from models import Tag, Video, VideoTag
 from playhouse.shortcuts import model_to_dict
 from playhouse.flask_utils import PaginatedQuery
 from middleware import mng_combined, api_response
@@ -48,6 +48,9 @@ def video(id = 0):
 @app.route('/videos')
 @mng_combined
 def videos():
+  if 'tag' in request.args:
+    return 1, [model_to_dict(video) for video in VideoTag.videos(request.args['tag'])]
+
   return render_template('videos.html')
 
 

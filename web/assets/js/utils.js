@@ -31,16 +31,16 @@ function snackbar(msg, callback) {
   })
 }
 
-function pagination(callback, page) {
-  var table = $('[pagination]');
-  var p = table.attr('pagination').split(':'), method = p[0], url = p[1];
+function pagination(elem, callback, page) {
+  var p = elem.attr('pagination').split(':'), method = p[0], url = p[1];
+  var rel = elem.attr('index') ? '[index="' + elem.attr('index') + '"]' : '';
   url += (url.indexOf('?') == -1 ? '?' : '&') + 'page=' + (page || 1);
 
-  table.after('<div class="loading mdui-p-y-3 mdui-text-center mdui-text-color-theme-700">数据加载中……</div>');
+  $('.paginate-loading' + rel).show();
   api(method, url, {}, function (r) {
-    var pre = r.pre,
-        cur = r.page,
-        count = r.count,
+    var pre = r.pre || r.length,
+        cur = r.page || 1,
+        count = r.count || r.length,
         pages = Math.ceil(count / pre) || 1,
         paginator = '<span>共 ' + count + ' 项</span><div class="links">';
 
@@ -81,10 +81,10 @@ function pagination(callback, page) {
       paginator += '<a href="#" switch="' + (cur + 1) + '" class="mdui-ripple mdui-text-color-theme-500">下一页</a>';
     }
 
-    table.next('.loading').remove();
-    table.find('tbody').html(callback(r.data));
-    $('.pagination').html(paginator + '</div>');
-    $('.pagination [switch]').click(function () {
+    $('.paginate-loading' + rel).hide();
+    $('.paginate-container' + rel).html(callback(r.data || r));
+    $('.paginator' + rel).html(paginator + '</div>');
+    $('.paginator[switch]' + rel).click(function () {
       pagination(callback, $(this).attr('switch'));
     });
   });

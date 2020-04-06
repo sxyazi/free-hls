@@ -54,10 +54,11 @@
                 <th width="130">操作</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="paginate-container">
             </tbody>
           </table>
-          <div class="pagination mdui-p-y-2 mdui-p-x-3 mdui-text-right mdui-text-color-theme-500"></div>
+          <div class="paginate-loading mdui-p-y-3 mdui-text-center mdui-text-color-theme-700">数据加载中……</div>
+          <div class="paginator mdui-p-y-2 mdui-p-x-3 mdui-text-right mdui-text-color-theme-500"></div>
         </div>
       </div>
     </div>
@@ -70,7 +71,7 @@
 var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
-var refresh = pagination(function (videos) {
+var refresh = pagination($('table'), function (videos) {
   var html = '';
   for (var i=0; i<videos.length; i++) {
       html

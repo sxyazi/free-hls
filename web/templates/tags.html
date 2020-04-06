@@ -43,21 +43,9 @@
     <div class="situation mdui-row mdui-m-y-3">
       <div class="mdui-col-xs-10 mdui-col-offset-xs-1">
         <h1 class="mdui-text-color-theme">标签列表</h1>
-        <div class="mdui-table-fluid">
-          <table class="mdui-table mdui-table-hoverable" pagination="GET:tags?list">
-            <thead>
-              <tr>
-                <th width="50">ID</th>
-                <th width="350">标题</th>
-                <th width="160">创建时间</th>
-                <th width="50">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-          <div class="pagination mdui-p-y-2 mdui-p-x-3 mdui-text-right mdui-text-color-theme-500"></div>
+        <div id="tag-list" class="mdui-panel paginate-container" mdui-panel index="tags" pagination="GET:tags?list">
         </div>
+        <div index="tags" class="paginator mdui-p-y-3 mdui-text-right mdui-text-color-theme-500"></div>
       </div>
     </div>
   </div>
@@ -69,23 +57,63 @@
 var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
-pagination(function (tags) {
+pagination($('#tag-list'), function (tags) {
   var html = '';
   for (var i=0; i<tags.length; i++) {
       html
+        += '<div class="mdui-panel-item mdui-color-theme-800" tag-id="' + tags[i].id + '"'
+        +  '     index="tag-' + tags[i].id + '" pagination="GET:videos?tag=' + tags[i].id + '">'
+        +  '  <div class="mdui-panel-item-header">'
+        +  '    <div class="mdui-panel-item-title">' + tags[i].name + '</div>'
+        +  '    <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>'
+        +  '  </div>'
+        +  '  <div class="mdui-panel-item-body">'
+        +  '    <div class="mdui-table-fluid">'
+        +  '      <table class="mdui-table mdui-color-theme-800">'
+        +  '        <thead>'
+        +  '          <tr>'
+        +  '            <th width="60" class="mdui-text-center">#</th>'
+        +  '            <th>标题</th>'
+        +  '            <th>标签</th>'
+        +  '            <th>发布时间</th>'
+        +  '          </tr>'
+        +  '        </thead>'
+        +  '        <tbody index="tag-' + tags[i].id + '" class="paginate-container"></tbody>'
+        +  '      </table>'
+        +  '      <div index="tag-' + tags[i].id + '" class="paginate-loading mdui-p-y-3 mdui-text-center mdui-text-color-theme-700">数据加载中……</div>'
+        +  '    </div>'
+        +  '    <div class="mdui-panel-item-actions">'
+        +  '      <button class="mdui-btn mdui-ripple" mdui-panel-item-close>cancel</button>'
+        +  '      <button class="mdui-btn mdui-ripple">save</button>'
+        +  '    </div>'
+        +  '  </div>'
+        +  '</div>';
+    }
+
+    return html;
+});
+
+$('#tag-list').on('opened.mdui.panel', function (e) {
+  pagination($(e.target), function (videos) {
+    var html = '';
+    for (var i=0; i<videos.length; i++) {
+      html
         += '<tr>'
-        +  '  <td>' + tags[i].id + '</td>'
+        +  '  <td>' + videos[i].id + '</td>'
         +  '  <td>'
-        +  '    <a href="/playlist/' + tags[i].id + '" target="_blank" class="mdui-text-color-theme-100">' + tags[i].name + '</a>'
+        +  '    <a href="/play/' + videos[i].slug + '" target="_blank" class="mdui-text-color-theme-100">' + videos[i].title + '</a>'
         +  '  </td>'
-        +  '  <td>' + dateformat(tags[i].created_at) + '</td>'
-        +  '  <td>'
-        +  '    <a href="/tag/' + tags[i].id + '" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">edit</i></a>'
-        +  '  </td>'
+        +  '  <td>' + videos[i].tags + '</td>'
+        +  '  <td>' + dateformat(videos[i].created_at) + '</td>'
         +  '</tr>';
     }
 
     return html;
+  });
+});
+
+$('#tag-list').on('closed.mdui.panel', function (e) {
+  $(e.target).find('tbody').empty();
 });
 </script>
 </html>
