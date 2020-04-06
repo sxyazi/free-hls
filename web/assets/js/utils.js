@@ -36,7 +36,7 @@ function pagination(callback, page) {
   var p = table.attr('pagination').split(':'), method = p[0], url = p[1];
   url += (url.indexOf('?') == -1 ? '?' : '&') + 'page=' + (page || 1);
 
-  table.after('<div class="loading" class="mdui-p-y-3 mdui-text-center mdui-text-color-theme-700">数据加载中……</div>');
+  table.after('<div class="loading mdui-p-y-3 mdui-text-center mdui-text-color-theme-700">数据加载中……</div>');
   api(method, url, {}, function (r) {
     var pre = r.pre,
         cur = r.page,
