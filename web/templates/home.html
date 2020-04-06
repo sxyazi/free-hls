@@ -62,7 +62,7 @@
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-secondx mdui-color-theme-700">play_arrow</i>
             <a href="/playlist/{{tagid}}?watch={{video.slug}}" class="mdui-list-item-content">
               <div class="mdui-list-item-title">{{ video.title }}</div>
-              <div class="mdui-list-item-text">发布于 {{ video.created_at }}</div>
+              <div class="mdui-list-item-text">发布于 {{ video.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
             </a>
             <i class="mdui-list-item-icon mdui-icon material-icons">navigate_next</i>
           </li>
