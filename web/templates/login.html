@@ -53,7 +53,7 @@
             </button>
           </div>
           <div class="mdui-card-content">
-            <form id="form-login" action="" method="POST">
+            <form id="form-login" onsubmit="login(event)">
               <div class="mdui-textfield">
                 <label class="mdui-textfield-label">密钥</label>
                 <input name="secret" type="secret" class="mdui-textfield-input">
@@ -69,11 +69,13 @@
 <script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
 <script>
-function login () {
+function login (e) {
   api('POST', 'login', $('#form-login').serialize(), function () {
     snackbar('登录成功，即将跳转');
     setTimeout(function () { location.href = '/videos'; }, 1000);
   });
+
+  e && e.preventDefault();
 }
 </script>
 </html>

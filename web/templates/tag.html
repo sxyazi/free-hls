@@ -53,7 +53,7 @@
             </button>
           </div>
           <div class="mdui-card-content">
-            <form id="form-tag" action="" method="POST">
+            <form id="form-tag" onsubmit="saveTag(event)">
               <div class="mdui-textfield">
                 <label class="mdui-textfield-label">名称</label>
                 <input name="name" type="name" class="mdui-textfield-input" value="{{ tag.name }}">
@@ -74,10 +74,12 @@
 var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
-function saveTag() {
+function saveTag(e) {
   api('POST', 'tag/' + $('input[name="id"]').val(), $('#form-tag').serialize(), function (res) {
     snackbar('保存成功');
   });
+
+  e && e.preventDefault();
 }
 </script>
 </html>

@@ -78,7 +78,7 @@
             {% endif %}
           </div>
           <div class="mdui-card-content">
-            <form id="form-video" action="" method="POST">
+            <form id="form-video" onsubmit="saveVideo(event)">
               <div class="mdui-textfield">
                 <label class="mdui-textfield-label">标题</label>
                 <input name="title" type="title" class="mdui-textfield-input" value="{{ video.title }}">
@@ -115,7 +115,7 @@
 var SECRET = '{{ SECRET }}',
     VERSION = '{{ VERSION }}';
 
-function saveVideo() {
+function saveVideo(e) {
   var selectize = $('#input-tags').data('selectize');
   if (!selectize.getValue()) {
     selectize.addOption({name: '未标记'});
@@ -130,6 +130,8 @@ function saveVideo() {
     snackbar('创建成功，即将跳转');
     setTimeout(function () { location.href = '/video/' + res.id; }, 1000);
   });
+
+  e && e.preventDefault();
 }
 
 function removeVideo(video_id) {
