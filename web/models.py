@@ -108,6 +108,7 @@ class Tag(Model):
 class VideoTag(Model):
   tag = ForeignKeyField(Tag, backref='tags', on_delete='CASCADE')
   video = ForeignKeyField(Video, on_delete='CASCADE')
+  sort = IntegerField(default=0, index=True)
   created_at = DateTimeField(default=datetime.datetime.now)
 
   class Meta:
@@ -119,8 +120,16 @@ class VideoTag(Model):
 
   @classmethod
   def videos(cls, tag):
-    return [vtag.video for vtag in cls.select().join(Video).where(cls.tag == tag)]
+    return [{**model_to_dict(vtag.video), 'sort': vtag.sort, 'code': None}
+      for vtag in cls.select().join(Tag).switch(cls).join(Video).where(cls.tag == tag)]
 
+  @classmethod
+  def save_videos(cls, tag, videos):
+    with db.atomic():
+      for video in videos:
+        cls.update(**video).where(cls.tag == tag, cls.video == video['id']).execute()
+
+    return 1, 'OK'
 
 class Secret(Model):
   iv = CharField()

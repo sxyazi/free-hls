@@ -38,9 +38,9 @@ function pagination(elem, callback, page) {
 
   $('.paginate-loading' + rel).show();
   api(method, url, {}, function (r) {
-    var pre = r.pre || r.length,
+    var pre = r.pre || r.length || 0,
         cur = r.page || 1,
-        count = r.count || r.length,
+        count = r.count || r.length || 0,
         pages = Math.ceil(count / pre) || 1,
         paginator = '<span>共 ' + count + ' 项</span><div class="links">';
 

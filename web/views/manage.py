@@ -1,10 +1,13 @@
+import json
 from . import app
 from os import getenv as _
+from utils import validjson
 from models import Tag, Video, VideoTag
 from playhouse.shortcuts import model_to_dict
 from playhouse.flask_utils import PaginatedQuery
 from middleware import mng_combined, api_response
 from flask import request, make_response, render_template
+
 
 @app.route('/tag', methods=['GET', 'POST'])
 @app.route('/tag/<id>', methods=['GET', 'POST'])
@@ -49,7 +52,20 @@ def video(id = 0):
 @mng_combined
 def videos():
   if 'tag' in request.args:
-    return 1, [model_to_dict(video) for video in VideoTag.videos(request.args['tag'])]
+    return 1, VideoTag.videos(request.args['tag'])
+
+  return render_template('videos.html')
+
+
+@app.route('/tag_videos', methods=['GET', 'POST'])
+@app.route('/tag_videos/<id>', methods=['GET', 'POST'])
+@mng_combined
+def tag_videos(id = 0):
+  if 'videos' in request.form:
+    if not validjson(request.form['videos']):
+      return 0, 'Videos parame is not a valid JSON'
+
+    return VideoTag.save_videos(id, json.loads(request.form['videos']))
 
   return render_template('videos.html')
 

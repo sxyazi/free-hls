@@ -69,22 +69,24 @@ pagination($('#tag-list'), function (tags) {
         +  '  </div>'
         +  '  <div class="mdui-panel-item-body">'
         +  '    <div class="mdui-table-fluid">'
-        +  '      <table class="mdui-table mdui-color-theme-800">'
-        +  '        <thead>'
-        +  '          <tr>'
-        +  '            <th width="60" class="mdui-text-center">#</th>'
-        +  '            <th>标题</th>'
-        +  '            <th>标签</th>'
-        +  '            <th>发布时间</th>'
-        +  '          </tr>'
-        +  '        </thead>'
-        +  '        <tbody index="tag-' + tags[i].id + '" class="paginate-container"></tbody>'
-        +  '      </table>'
+        +  '      <form method="POST" onsubmit="return false">'
+        +  '        <table class="mdui-table mdui-table-hoverable mdui-color-theme-800">'
+        +  '          <thead>'
+        +  '            <tr>'
+        +  '              <th width="60" class="mdui-text-center">#</th>'
+        +  '              <th>标题</th>'
+        +  '              <th>标签</th>'
+        +  '              <th>发布时间</th>'
+        +  '            </tr>'
+        +  '          </thead>'
+        +  '          <tbody index="tag-' + tags[i].id + '" class="paginate-container"></tbody>'
+        +  '        </table>'
+        +  '      </form>'
         +  '      <div index="tag-' + tags[i].id + '" class="paginate-loading mdui-p-y-3 mdui-text-center mdui-text-color-theme-700">数据加载中……</div>'
         +  '    </div>'
         +  '    <div class="mdui-panel-item-actions">'
         +  '      <button class="mdui-btn mdui-ripple" mdui-panel-item-close>cancel</button>'
-        +  '      <button class="mdui-btn mdui-ripple">save</button>'
+        +  '      <button class="mdui-btn mdui-ripple" onclick="saveTagVideos(event)">save</button>'
         +  '    </div>'
         +  '  </div>'
         +  '</div>';
@@ -99,7 +101,9 @@ $('#tag-list').on('opened.mdui.panel', function (e) {
     for (var i=0; i<videos.length; i++) {
       html
         += '<tr>'
-        +  '  <td>' + videos[i].id + '</td>'
+        +  '  <td>'
+        +  '    <input name="sort[' + videos[i].id + ']" type="text" class="sort mdui-text-center mdui-color-theme-700" value="' + videos[i].sort + '">'
+        +  '  </td>'
         +  '  <td>'
         +  '    <a href="/play/' + videos[i].slug + '" target="_blank" class="mdui-text-color-theme-100">' + videos[i].title + '</a>'
         +  '  </td>'
@@ -115,5 +119,23 @@ $('#tag-list').on('opened.mdui.panel', function (e) {
 $('#tag-list').on('closed.mdui.panel', function (e) {
   $(e.target).find('tbody').empty();
 });
+
+function saveTagVideos(e) {
+  var tag = $(e.target).parents('[tag-id]');
+  var videos = [];
+
+  for (var i=0, j=tag.find('form input'); i<j.length; i++) {
+    var matches = j[i].name.match(/(\w+)\[(\d+)\]/);
+    var video = {id: matches[2]};
+        video[matches[1]] = j[i].value;
+
+    videos.push(video);
+  }
+
+  api('POST', 'tag_videos/' + tag.attr('tag-id'), {videos: JSON.stringify(videos)}, function () {
+    tag.trigger('opened.mdui.panel');
+    snackbar('保存成功');
+  });
+}
 </script>
 </html>
