@@ -134,7 +134,8 @@ class VideoTag(Model):
   def save_videos(cls, tag, videos):
     with db.atomic():
       for video in videos:
-        cls.update(**video).where(cls.tag == tag, cls.video == video['id']).execute()
+        video_id = video.pop('id')
+        cls.update({**video}).where(cls.tag == tag, cls.video == video_id).execute()
 
     return 1, 'OK'
 
