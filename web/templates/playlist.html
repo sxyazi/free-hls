@@ -54,11 +54,18 @@
 <script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
 <script>
-  $('[watch]').click(function () {
-    $('[watch]').removeClass('mdui-color-theme-600');
-    $(this).addClass('mdui-color-theme-600');
-    $('iframe').attr('src', '/play/' + $(this).attr('watch') + '?notitle=1');
-    history.pushState(null, '', '/playlist/{{tag.id}}?watch=' + $(this).attr('watch'));
-  });
+$('[watch]').click(function (e) {
+  var watch = $(this).attr('watch');
+  $('iframe').get(0).contentWindow.location.replace('/play/' + watch + '?notitle=1');
+  $('[watch]').addClass('mdui-color-theme-600').not(this).removeClass('mdui-color-theme-600');
+
+  if (e.originalEvent) {
+    history.pushState({watch: watch}, '', '/playlist/{{tag.id}}?watch=' + watch);
+  }
+});
+
+window.addEventListener('popstate', function (e) {
+  $('[watch=' + (e.state ? e.state.watch : '{{watch}}') + ']').click();
+});
 </script>
 </html>

@@ -94,5 +94,6 @@ function pagination(elem, callback, page) {
 
 function dateformat(date) {
   var date = new Date(date);
-  return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes()
+  var pad = function (s) { return ('0' + s).substr(-2); }
+  return date.getFullYear() + '-' + pad(date.getMonth()) + '-' + pad(date.getDate()) + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes())
 }

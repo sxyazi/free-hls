@@ -20,8 +20,8 @@ class Video(Model):
   @classmethod
   def remove(cls, id):
     with db.atomic():
-      tags = [vtag.tag for vtag in VideoTag.select().join(Tag).where(VideoTag.video == id)]
-      for tag in tags: Tag.unlink(tag, id)
+      for tag in VideoTag.tags(id):
+        Tag.unlink(tag, id)
 
       cls.delete().where(cls.id == id).execute()
 
@@ -63,7 +63,7 @@ class Tag(Model):
   def add(cls, tags, video_id):
     tags       = tags.split(',') if tags else []
     all_tags   = [tag.name for tag in cls.select().where(cls.name << tags)]
-    video_tags = [vtag.tag.name for vtag in VideoTag.select().join(Tag).where(VideoTag.video == video_id)]
+    video_tags = [tag.name for tag in VideoTag.tags(video_id)]
 
     for tag in set(tags) - set(all_tags):
       cls.create(name = tag)
@@ -82,8 +82,7 @@ class Tag(Model):
       cls.update(**kwargs).where(cls.id == tag).execute()
 
       # Replace videos `tags` attr
-      videos = [vtag.video for vtag in VideoTag.select().join(Video).where(VideoTag.tag == tag)]
-      for video in videos:
+      for video in VideoTag.videos(tag):
         video.tags = ','.join([kwargs['name'] if t == tag.name else t for t in filtertags(video.tags).split(',')])
         video.save()
 
@@ -119,9 +118,17 @@ class VideoTag(Model):
     )
 
   @classmethod
+  def tags(cls, video):
+    return [vtag.tag for vtag in cls.select().join(Tag).where(cls.video == video)]
+
+  @classmethod
   def videos(cls, tag):
+    return [vtag.video for vtag in cls.select().join(Video).where(cls.tag == tag)]
+
+  @classmethod
+  def blend(cls, tag):
     return [{**model_to_dict(vtag.video), 'sort': vtag.sort, 'code': None}
-      for vtag in cls.select().join(Tag).switch(cls).join(Video).where(cls.tag == tag)]
+      for vtag in cls.select().join(Tag).switch(cls).join(Video).order_by(cls.sort, cls.id).where(cls.tag == tag)]
 
   @classmethod
   def save_videos(cls, tag, videos):

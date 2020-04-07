@@ -44,7 +44,7 @@ def play(slug):
 @app.route('/playlist/<tag_id>')
 def playlist(tag_id):
   tag = Tag.get_by_id(tag_id)
-  videos = VideoTag.videos(tag)
+  videos = VideoTag.blend(tag)
   watch = request.args.get('watch') or videos[0]['slug']
 
   return render_template('playlist.html', tag=tag, watch=watch, videos=videos)

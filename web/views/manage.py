@@ -52,7 +52,7 @@ def video(id = 0):
 @mng_combined
 def videos():
   if 'tag' in request.args:
-    return 1, VideoTag.videos(request.args['tag'])
+    return 1, VideoTag.blend(request.args['tag'])
 
   return render_template('videos.html')
 
