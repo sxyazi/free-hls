@@ -40,11 +40,14 @@ class Video(Model):
     kwargs['tags'] = filtertags(kwargs['tags']) or '未标记'
 
     with db.atomic():
-      if kwargs['id']:
-        cls.update(**kwargs).where(cls.id == kwargs['id']).execute()
-        video = cls.get_by_id(kwargs['id'])
+      id = kwargs.pop('id') if 'id' in kwargs else 0
+      if id:
+        cls.update(**kwargs).where(cls.id == id).execute()
+        video = cls.get_by_id(id)
+      elif cls.select().where(cls.slug == kwargs['slug']).exists():
+        cls.update(**kwargs).where(cls.slug == kwargs['slug']).execute()
+        video = cls.get(cls.slug == kwargs['slug'])
       else:
-        kwargs.pop('id')
         video = cls.create(**kwargs)
       Tag.add(kwargs['tags'], video.id)
 
