@@ -85,11 +85,11 @@ function pagination(elem, callback, page) {
     $('.paginate-container' + rel).html(callback(r.data || r));
     $('.paginator' + rel).html(paginator + '</div>');
     $('.paginator[switch]' + rel).click(function () {
-      pagination(callback, $(this).attr('switch'));
+      pagination(elem, callback, $(this).attr('switch'));
     });
   });
 
-  return function () { pagination(callback, page); }
+  return function () { pagination(elem, callback, page); }
 }
 
 function dateformat(date) {
