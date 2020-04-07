@@ -81,15 +81,22 @@
             <form id="form-video" onsubmit="saveVideo(event)">
               <div class="mdui-textfield">
                 <label class="mdui-textfield-label">标题</label>
-                <input name="title" type="title" class="mdui-textfield-input" value="{{ video.title }}">
+                <input name="title" type="text" class="mdui-textfield-input" value="{{ video.title }}">
               </div>
+
+              {% if video %}
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">Slug</label>
+                <input name="slug" type="text" class="mdui-textfield-input" value="{{ video.slug }}">
+              </div>
+              {% endif %}
 
               <div class="mdui-m-b-1 mdui-m-t-2">
                 <label class="mdui-textfield-label">标签</label>
                 <input id="input-tags" name="tags" type="text" class="demo-default" value="{{ video.tags }}">
               </div>
 
-              <div class="mdui-m-b-1 mdui-m-t-2">
+              <div class="mdui-textfield">
                 <label class="mdui-textfield-label">参数</label>
                 <textarea name="params" class="mdui-textfield-input">{{ video.params or '{"padding": 0}' }}</textarea>
               </div>

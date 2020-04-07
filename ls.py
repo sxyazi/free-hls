@@ -12,7 +12,8 @@ def main():
   except:
     page = 1
 
-  for video in api('GET', 'videos/%d' % page):
+  result = api('GET', 'paginate?page=%d' % page)
+  for video in result['data']:
     link = '%s/play/%s' % (_('APIURL'), video['slug'])
     date = datetime.strptime(video['created_at'], '%a, %d %b %Y %H:%M:%S GMT')
 
