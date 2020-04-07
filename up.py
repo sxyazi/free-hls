@@ -3,7 +3,8 @@ from sys import argv
 from os import getenv as _
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from utils import api, exec, execstr, tsfiles, uploader, sameparams, genslice, genrepair
+from utils import (api, exec, execstr, tsfiles, uploader,
+                    manageurl, sameparams, genslice, genrepair)
 load_dotenv()
 argv += [''] * 3
 
@@ -43,6 +44,8 @@ def publish(code, title=None):
     url = '%s/play/%s' % (_('APIURL'), r['slug'])
     print('This video has been published to: %s' % url)
     print('You can also download it directly: %s.m3u8' % url)
+    print('---')
+    print('Click here to edit the information for this video:\n%s' % manageurl('video/%s' % r['id']))
 
 def repairer(code):
   limit = uploader().MAX_BYTES

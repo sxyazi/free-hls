@@ -1,12 +1,12 @@
 import json
 from . import app
 from os import getenv as _
-from utils import validjson
+from utils import md5, validjson
 from models import Tag, Video, VideoTag
 from playhouse.shortcuts import model_to_dict
 from playhouse.flask_utils import PaginatedQuery
 from middleware import mng_combined, api_response
-from flask import request, make_response, render_template
+from flask import request, redirect, make_response, render_template
 
 
 @app.route('/tag', methods=['GET', 'POST'])
@@ -73,8 +73,16 @@ def tag_videos(id = 0):
 @app.route('/login', methods=['GET', 'POST'])
 @api_response
 def login():
-  if request.method == 'POST':
-    secret = request.form.get('secret')
+  if 'auth' in request.args:
+    if request.args['auth'] != md5(_('SECRET')):
+      return 0, '无效的 Token'
+
+    resp = make_response(redirect(request.args.get('goto')))
+    resp.set_cookie('secret', _('SECRET'))
+    return resp
+
+  if 'secret' in request.form:
+    secret = request.form['secret']
     if not _('SECRET') == secret:
       return 0, '登录失败'
 

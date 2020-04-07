@@ -1,8 +1,8 @@
 import json, hashlib
 
-def md5(s):
+def md5(s, short=False):
   md5 = hashlib.md5(s.encode('utf-8')).hexdigest()
-  return md5[8:24]
+  return md5[8:24] if short else md5
 
 def validjson(s):
   try:

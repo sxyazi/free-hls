@@ -4,6 +4,7 @@ import shutil, hashlib, subprocess
 from os import getenv as _
 from functools import wraps
 from constants import VERSION
+from requests.utils import requote_uri
 
 def api(method, url, **kwargs):
   if method == 'POST':
@@ -70,6 +71,9 @@ def upload_wrapper(f):
       return f(cls, g)
 
   return decorated
+
+def manageurl(path):
+  return '%s/login?auth=%s&goto=%s' % (_('APIURL'), md5(_('SECRET').encode('utf-8')), requote_uri(path if '://' in path else '/' + path))
 
 def bit_rate(file):
   return int(execstr(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))

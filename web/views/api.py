@@ -48,7 +48,7 @@ def publish():
     tags = get('tags'),
     title = get('title'),
     params = get('params'),
-    slug = get('slug') or md5(get('code')))
+    slug = get('slug') or md5(get('code'), True))
 
 @app.route('/paginate')
 @api_combined
