@@ -6,6 +6,7 @@
 
 **视频教程：只需 10 分钟搭建出一款属于自己的视频床：[https://sxyz.gitee.io/free-hls/usage.html](https://sxyz.gitee.io/free-hls/usage.html)**
 
+**新版本布告：当前版本在不久后的将来将停止维护，如果你是新用户，请直接使用更加强大和稳定的 [next 分支下一代](https://github.com/sxyazi/free-hls/tree/next) 版本，如果你是老用户届时我们会释出迁移脚本。**
 
 
 ## 客户端
