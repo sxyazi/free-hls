@@ -4,8 +4,6 @@
 
 本项目仅供学习交流使用，在使用过程中对你或他人造成的任何损失我们概不负责。
 
-**视频教程：只需 10 分钟搭建出一款属于自己的视频床：[https://sxyz.gitee.io/free-hls/usage.html](https://sxyz.gitee.io/free-hls/usage.html)**
-
 **新版本布告：当前版本在不久后的将来将停止维护，如果你是新用户，请直接使用更加强大和稳定的 [next 分支下一代](https://github.com/sxyazi/free-hls/tree/next) 版本，如果你是老用户届时我们会释出迁移脚本。**
 
 
@@ -23,24 +21,13 @@ pip3 install requests python-dotenv
 ```
 
 
-
-### 2. 配置语雀
-
-将 `.env.example` 更名为 `.env`，修改其中的 `YUQUE_CTOKEN`、`YUQUE_SESSION` 配置。操作步骤：
-
-1. 登录语雀 yuque.com；
-2. 打开 Chrome 的开发者工具（Command+Shift+I），切换到 Network 面板；
-3. 刷新页面，从 Cookie 中抓取 `ctoken`、`_yuque_session`，复制并替换到 `.env` 文件中；
-
-
-
-### 3. 配置服务
+### 2. 配置服务
 
 正确施行 [服务端](#服务端) 一节的全部内容，完成服务端的搭建。将你服务器的域名或 IP 地址修改到 `.env` 中的  `APIURL` 配置项。
 
 
 
-### 4. 开始使用
+### 3. 开始使用
 
 准备好目标视频文件，输入如下指令开始切片、上传：
 
