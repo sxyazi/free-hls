@@ -106,9 +106,8 @@ def genslice(file, time):
   return 'ffmpeg -y -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
 
 def genrepair(file, newfile, maxbits):
-  maxrate = maxbits / math.ceil(video_duration(file)) / max(1, maxbit_rate(file) / bit_rate(file))
-  return 'ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -vcodec h264 -acodec copy -bsf:v h264_mp4toannexb -b:v %s -maxrate %s -bufsize %s %s' % (file, maxrate*0.9, maxrate, maxrate*1.5, newfile)
-
+  maxrate = maxbits / math.ceil(video_duration(file))
+  return 'ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -c:v libx264 -c:a copy -bsf:v h264_mp4toannexb -b:v %s -pass 1 %s && ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -c:v libx264 -c:a copy -bsf:v h264_mp4toannexb -b:v %s -pass 2 %s' % (file, maxrate*0.9, newfile, file, maxrate*0.9, newfile)
 
 session = requests.Session()
 session.headers.update({'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/11A465 QQLiveBrowser/7.0.8 WebKitCore/UIWebView'})
