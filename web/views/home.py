@@ -1,11 +1,15 @@
 import os
 import binascii
 from . import app
+from os import getenv as _
 from models import Tag, Video, Secret, VideoTag
-from flask import abort, jsonify, request, Response, render_template
+from flask import abort, jsonify, request, redirect, Response, render_template
 
 @app.route('/')
 def home():
+  if _('CLOSEUI') == 'YES':
+    return 'Hello Free-HLS!'
+
   total_tags = Tag.select().count()
   total_videos = Video.select().count()
   latest_tags = {vtag.tag.id: vtag.tag for vtag in VideoTag.select().join(Tag).order_by(VideoTag.id.desc()).group_by(VideoTag.tag).limit(10)}
@@ -43,6 +47,9 @@ def play(slug):
 
 @app.route('/playlist/<tag_id>')
 def playlist(tag_id):
+  if _('CLOSEUI') == 'YES':
+    return redirect('/')
+
   tag = Tag.get_by_id(tag_id)
   videos = VideoTag.blend(tag)
   watch = request.args.get('watch') or videos[0]['slug']
