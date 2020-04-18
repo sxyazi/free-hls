@@ -88,7 +88,7 @@ def maxbit_rate(file):
 
 def video_codec(file):
   codecs = execstr(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
-  return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
+  return _('VCODEC') if set(codecs.split('\n')).difference({'h264'}) else 'copy'
 
 def video_duration(file):
   return float(execstr(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',file]))
@@ -103,11 +103,12 @@ def genslice(file, time):
   #SEGMENT_TIME
   sub += ' -segment_time %d' % (time or segment_time)
 
-  return 'ffmpeg -y -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
+  return 'ffmpeg -y -i %s -c:v %s -c:a aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
 
 def genrepair(file, newfile, maxbits):
   maxrate = maxbits / math.ceil(video_duration(file))
-  return 'ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -c:v libx264 -c:a copy -bsf:v h264_mp4toannexb -b:v %s -pass 1 %s && ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -c:v libx264 -c:a copy -bsf:v h264_mp4toannexb -b:v %s -pass 2 %s' % (file, maxrate*0.9, newfile, file, maxrate*0.9, newfile)
+  subcmd = 'ffmpeg -y -i %s -copyts -vsync 0 -muxdelay 0 -c:v %s -c:a copy -bsf:v h264_mp4toannexb -b:v %s -pass %s' % (_('VCODEC'), file, maxrate*0.9, newfile)
+  return '%s && %s' % (subcmd.replace('-pass', '-pass 1'), subcmd.replace('-pass', '-pass 2'))
 
 session = requests.Session()
 session.headers.update({'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/11A465 QQLiveBrowser/7.0.8 WebKitCore/UIWebView'})
