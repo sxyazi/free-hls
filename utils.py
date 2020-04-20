@@ -12,7 +12,7 @@ def api(method, url, **kwargs):
   else:
     fn = requests.get
   try:
-    ok, data = fn('%s/%s' % (_('APIURL'), url), **kwargs, headers={
+    ok, data = fn('%s/%s' % (_('APIURL'), url), **kwargs, timeout=10, headers={
       'API-Token': _('SECRET'),
       'API-Version': VERSION}).json()
 
