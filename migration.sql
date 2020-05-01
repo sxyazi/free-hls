@@ -1,3 +1,7 @@
+--- 在执行数据库迁移前请先备份原数据库
+
+
+--- 版本
 --- 20.4.19 to 20.5.1
 create table videos_dg_tmp
 (
@@ -14,7 +18,7 @@ create table videos_dg_tmp
 	updated_at DATETIME
 );
 
-insert into videos_dg_tmp(id, slug, code, tags, title, params, created_at, updated_at) select id, slug, code, tags, title, params, created_at, updated_at from videos;
+insert into videos_dg_tmp(id, slug, code, tags, title, params, created_at, updated_at, output, status) select id, slug, code, tags, title, params, created_at, updated_at, '' as output, 0 as status from videos;
 
 drop table videos;
 
