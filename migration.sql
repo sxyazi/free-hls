@@ -23,3 +23,6 @@ alter table videos_dg_tmp rename to videos;
 create unique index video_slug
 	on videos (slug);
 
+create index video_status
+	on videos (status);
+
