@@ -20,8 +20,13 @@ def cloud():
       if not line: break
       Video.update({Video.output: Video.output + line.decode('utf-8')}).where(Video.id == video.id).execute()
 
-    if p.wait() != 0:
+    p.wait()
+    if p.returncode == 1:
       Video.update(status = 3).where(Video.id == video.id).execute()
+    if p.returncode == 2:
+      Video.update(status = 1).where(Video.id == video.id).execute()
+    if p.returncode != 0:
+      continue
 
     code = open('%s/tmp/out.m3u8' % root, 'r').read()
     Video.update(

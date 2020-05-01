@@ -59,7 +59,7 @@ def repairer(code):
         open('out.m3u8', 'w').write(code)
         print('File too large: tmp/%s' % file)
         print('Adjust parameters or continue execution with the same parameters')
-        exit(1)
+        exit(2)
 
   open('out.m3u8', 'w').write(code)
   return code
@@ -106,12 +106,12 @@ def main():
   open('out.m3u8', 'w').write(lines)
   open('params.json', 'w').write(json.dumps(uploader().params()))
 
-  if not failures:
-    publish(lines, args.title or path.splitext(path.basename(args.file))[0])
-  else:
+  if failures:
     print('Partially successful: %d/%d' % (completions-failures, completions))
     print('You can re-execute this program with the same parameters')
+    exit(2)
 
+  publish(lines, args.title or path.splitext(path.basename(args.file))[0])
 
 
 if __name__ == '__main__':
