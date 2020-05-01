@@ -1,0 +1,37 @@
+import os, sys, datetime
+import time, threading, subprocess
+from models import Video
+from utils import md5, cloudconfig
+
+def cloud():
+  while True:
+    time.sleep(3)
+    video = Video.select().where(Video.status == 1).first()
+    if not video: continue
+    Video.update(status = 2).where(Video.id == video.id).execute()
+
+    root = os.path.dirname(os.getcwd())
+    envfile = cloudconfig()
+    cmd = [sys.executable, '%s/up.py' % root, '-c', envfile, '%s/queues/%s' % (os.getcwd(), video.id)]
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    while True:
+      line = p.stdout.readline()
+      if not line: break
+      Video.update({Video.output: Video.output + line.decode('utf-8')}).where(Video.id == video.id).execute()
+
+    if p.wait() != 0:
+      Video.update(status = 3).where(Video.id == video.id).execute()
+
+    code = open('%s/tmp/out.m3u8' % root, 'r').read()
+    Video.update(
+      status = 0,
+      code = code,
+      slug = md5(code, True),
+      params = open('%s/tmp/params.json' % root, 'r').read(),
+      updated_at = datetime.datetime.now()
+    ).where(Video.id == video.id).execute()
+
+
+
+threading.Thread(target=cloud).start()

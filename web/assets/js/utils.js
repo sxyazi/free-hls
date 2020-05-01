@@ -1,8 +1,10 @@
 function api(method, url, data, callback) {
-  $.ajax({
+  return $.ajax({
       url: '/' + url,
       data: data,
       type: method,
+      processData: !data instanceof FormData,
+      contentType: data instanceof FormData ? false : 'application/x-www-form-urlencoded',
       beforeSend: function (xhr) {
         xhr.setRequestHeader('API-Token', window.SECRET || '');
         xhr.setRequestHeader('API-Version', window.VERSION || '');

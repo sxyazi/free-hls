@@ -1,6 +1,6 @@
 tmp/
-.env
+.env*
 .idea
 .vscode
-web/data.db
+**/*.db
 **/__pycache__

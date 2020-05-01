@@ -5,17 +5,28 @@ from playhouse.shortcuts import model_to_dict
 db = SqliteDatabase('data.db', pragmas={'foreign_keys': 1})
 
 class Video(Model):
-  slug = CharField(unique=True)
+  slug = CharField(unique=True, null=True)
+  code = TextField(default='')
   tags = CharField()
-  code = TextField()
   title = CharField()
   params = TextField()
+  output = TextField(default='')
+  # 0.已发布， 1.队列中，2.处理中，3.发布失败
+  status = IntegerField(default=0, index=True)
   created_at = DateTimeField(default=datetime.datetime.now)
   updated_at = DateTimeField(null=True)
 
   class Meta:
     database = db
     db_table = 'videos'
+
+  @classmethod
+  def add(cls, **kwargs):
+    kwargs['tags'] = filtertags(kwargs['tags']) or '未标记'
+    with db.atomic():
+      video = cls.create(**kwargs)
+      Tag.add(kwargs['tags'], video.id)
+    return video
 
   @classmethod
   def remove(cls, id):

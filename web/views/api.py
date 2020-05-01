@@ -1,11 +1,10 @@
 import os
 from . import app
 from os import getenv as _
-from utils import md5
 from flask import request
 from models import Video, Secret
 from middleware import api_combined
-from werkzeug.utils import secure_filename
+from utils import md5, saveupload
 from playhouse.shortcuts import model_to_dict
 from playhouse.flask_utils import PaginatedQuery
 
@@ -25,17 +24,23 @@ def key():
 def upload():
   if not _('ENABLE_UPLOAD') == 'YES':
     return 0, 'Upload is not enabled'
+  return saveupload('uploads')
 
-  if 'file' not in request.files:
-    return 0, 'No file part'
+@app.route('/queue', methods=['POST'])
+@api_combined
+def queue():
+  ok, file = saveupload('queues', True)
+  if not ok:
+    return 0, file
 
-  file = request.files['file']
-  if not file or file.filename == '':
-    return 0, 'No selected file'
+  video = Video.add(
+    status = 1,
+    params = '{}',
+    tags = request.form.get('tags'),
+    title = request.form.get('title'))
 
-  name = secure_filename(file.filename)
-  file.save(os.path.join('uploads', name))
-  return 1, name
+  os.rename(file, '%s/%s' % (os.path.dirname(file), video.id))
+  return 1, video.id
 
 @app.route('/publish', methods=['POST'])
 @api_combined

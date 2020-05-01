@@ -29,6 +29,10 @@
         <a class="mdui-list-item-content" href="/tags">标签管理</a>
       </li>
       <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-pink">cloud_upload</i>
+        <a class="mdui-list-item-content" href="/offline">离线切片</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
         <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
         <a class="mdui-list-item-content" href="/video">发布视频</a>
       </li>
@@ -48,7 +52,8 @@
             <thead>
               <tr>
                 <th width="50">ID</th>
-                <th width="350">标题</th>
+                <th width="300">标题</th>
+                <th width="100">状态</th>
                 <th width="200">标签</th>
                 <th width="160">发布时间</th>
                 <th width="130">操作</th>
@@ -80,6 +85,7 @@ var refresh = pagination($('table'), function (videos) {
         +  '  <td>'
         +  '    <a href="/play/' + videos[i].slug + '" target="_blank" class="mdui-text-color-theme-100">' + videos[i].title + '</a>'
         +  '  </td>'
+        +  '  <td>' + ['已发布','队列中','处理中','发布失败'][videos[i].status] + '</td>'
         +  '  <td>' + videos[i].tags + '</td>'
         +  '  <td>' + dateformat(videos[i].created_at) + '</td>'
         +  '  <td>'

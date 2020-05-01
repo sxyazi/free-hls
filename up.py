@@ -1,12 +1,11 @@
+import argparse
 import os, re, json
-from sys import argv
+from os import path
 from os import getenv as _
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from utils import (api, exec, execstr, tsfiles, uploader,
                     manageurl, sameparams, genslice, genrepair)
-load_dotenv()
-argv += [''] * 3
 
 def encrypt(code):
   if not _('ENCRYPTION') == 'YES':
@@ -51,12 +50,12 @@ def repairer(code):
   limit = uploader().MAX_BYTES
 
   for file in tsfiles(code):
-    if os.path.getsize(file) > limit:
+    if path.getsize(file) > limit:
       tmp = 'rep.%s' % file
       os.system(genrepair(file, tmp, limit * 8))
       os.rename(tmp, file)
 
-      if os.path.getsize(file) > limit:
+      if path.getsize(file) > limit:
         open('out.m3u8', 'w').write(code)
         print('File too large: tmp/%s' % file)
         print('Adjust parameters or continue execution with the same parameters')
@@ -67,10 +66,16 @@ def repairer(code):
 
 
 def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('file', type=str, help='video file')
+  parser.add_argument('title', type=str, nargs='?', help='post title')
+  parser.add_argument('time', type=int, nargs='?', help='time for pre segment', default=0)
+  parser.add_argument('-c, --config', type=str, dest='config', help='change the configuration file path')
+  args = parser.parse_args()
 
-  title   = argv[2] if argv[2] else os.path.splitext(os.path.basename(argv[1]))[0]
-  tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
-  command = genslice(os.path.abspath(argv[1]), int(argv[3]) if argv[3] else 0)
+  load_dotenv(args.config)
+  tmpdir  = path.dirname(path.abspath(__file__)) + '/tmp'
+  command = genslice(path.abspath(args.file), args.time)
 
   if sameparams(tmpdir, command):
     os.chdir(tmpdir)
@@ -99,9 +104,10 @@ def main():
 
   #Write to file
   open('out.m3u8', 'w').write(lines)
+  open('params.json', 'w').write(json.dumps(uploader().params()))
 
   if not failures:
-    publish(lines, title)
+    publish(lines, args.title or path.splitext(path.basename(args.file))[0])
   else:
     print('Partially successful: %d/%d' % (completions-failures, completions))
     print('You can re-execute this program with the same parameters')

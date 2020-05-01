@@ -57,6 +57,12 @@ def videos():
   return render_template('videos.html')
 
 
+@app.route('/offline', methods=['GET'])
+@mng_combined
+def offline(id = 0):
+  return render_template('offline.html')
+
+
 @app.route('/tag_videos', methods=['GET', 'POST'])
 @app.route('/tag_videos/<id>', methods=['GET', 'POST'])
 @mng_combined
