@@ -14,7 +14,7 @@ create table videos_dg_tmp
 	updated_at DATETIME
 );
 
-insert into videos_dg_tmp(id, slug, code, tags, title, params, created_at, updated_at) select id, slug, code, tags, title, params, created_at, updated_at from videos;
+insert into videos_dg_tmp(id, slug, code, tags, title, params, created_at, updated_at, output, status) select id, slug, code, tags, title, params, created_at, updated_at, '' as output, 0 as status from videos;
 
 drop table videos;
 
