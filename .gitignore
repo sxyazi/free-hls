@@ -1,7 +1,6 @@
 tmp/
-.env
+.env*
 .idea
 .vscode
-keys/
-userdata/
+**/*.db
 **/__pycache__

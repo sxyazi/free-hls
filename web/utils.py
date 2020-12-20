@@ -1,66 +1,11 @@
-import os
-import json, time
-import base64, hashlib
+import os, json, shutil, hashlib
+from os import path
+from flask import request
+from werkzeug.utils import secure_filename
 
-def md5(s):
+def md5(s, short=False):
   md5 = hashlib.md5(s.encode('utf-8')).hexdigest()
-  return md5[8:24]
-
-def readkey(id):
-  return json.load(open('keys/%s' % id, 'r'))
-
-def writekey(key, iv):
-  id = md5(key + iv)
-
-  with open('keys/%s' % id, 'w') as f:
-    f.write(json.dumps({
-      'iv': iv,
-      'key': key,
-      'created_at': int(time.time())
-    }))
-
-  return id
-
-def listfile(skip=0):
-  i, entities = 0, []
-
-  try:
-    with open('userdata/index') as f:
-      for _ in range(skip):
-        next(f)
-
-      for line in f:
-        if i >= 50:
-          break
-
-        i += 1
-        entities.append(json.loads(line))
-  except: pass
-  return entities
-
-def readfile(key):
-  return json.load(open('userdata/%s' % key, 'r'))
-
-def writefile(code, params, title=None):
-  key  = md5(code)
-  meta = {
-    'key': key,
-    'file': 'userdata/%s' % key,
-    'title': title or 'untitled',
-    'params': params or '{}',
-    'created_at': int(time.time())
-  }
-
-  if not os.path.isfile(meta['file']):
-    with open('userdata/index', 'a') as f:
-      f.write(json.dumps(meta) + '\n')
-
-  with open(meta['file'], 'w') as f:
-    meta['raw'] = code
-    meta['code'] = base64.b64encode(code.encode('utf-8')).decode('ascii')
-    f.write(json.dumps(meta))
-
-  return key
+  return md5[8:24] if short else md5
 
 def validjson(s):
   try:
@@ -68,3 +13,30 @@ def validjson(s):
     return True
   except:
     return False
+
+def filtertags(s):
+  return ','.join(list(dict.fromkeys(filter(None, s.split(','))))) if s else ''
+
+def saveupload(dir, full=False):
+  if 'file' not in request.files:
+    return 0, 'No file part'
+
+  file = request.files['file']
+  if not file or file.filename == '':
+    return 0, 'No selected file'
+
+  path = os.path.join(dir, secure_filename(file.filename))
+  file.save(path)
+  return 1, path if full else os.path.basename(path)
+
+def cloudconfig():
+  root = path.dirname(path.dirname(path.abspath(__file__)))
+  config = '%s/.env.cloud' % root
+  shutil.copy('%s/.env' % root, config)
+
+  with open(config, 'a') as f:
+    f.write('\n')
+    f.write('\n')
+    f.write('NOSERVER=YES\n')
+
+  return config

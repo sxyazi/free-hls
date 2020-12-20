@@ -1,0 +1,36 @@
+a {
+  text-decoration: none;
+}
+
+.paginator {
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.paginator span {
+  float: left;
+}
+.paginator a {
+  padding: 2px 8px;
+  display: inline-block;
+}
+.paginator:empty {
+  display: none;
+}
+.paginator a:hover {
+  opacity: .75;
+}
+.paginator .links {
+  display: flex;
+  align-items: center;
+}
+.paginate-loading {
+  display: none;
+}
+
+input.sort {
+  border: none;
+  outline: none;
+  width: 100%;
+}

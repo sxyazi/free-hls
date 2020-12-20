@@ -4,7 +4,6 @@
 
 本项目仅供学习交流使用，在使用过程中对你或他人造成的任何损失我们概不负责。
 
-**新版本布告：当前版本在不久后的将来将停止维护，如果你是新用户，请直接使用更加强大和稳定的 [next 分支下一代](https://github.com/sxyazi/free-hls/tree/next) 版本，如果你是老用户届时我们会释出迁移脚本。**
 
 
 ## 客户端
@@ -23,7 +22,7 @@ pip3 install requests python-dotenv
 
 ### 2. 配置服务
 
-正确施行 [服务端](#服务端) 一节的全部内容，完成服务端的搭建。将你服务器的域名或 IP 地址修改到 `.env` 中的  `APIURL` 配置项。
+正确施行 [服务端](#服务端) 一节的全部内容，完成服务端的搭建。复制客户端配置文件 `.env.example` 为 `.env`，修改其中的 `APIURL` 配置项为你的服务域名或 IP 地址。完成你所用图床的相关环境变量配置。
 
 
 
@@ -35,7 +34,6 @@ pip3 install requests python-dotenv
 python3 up.py test.mp4               #默认标题
 python3 up.py test.mp4 测试哦         #自定义标题
 python3 up.py test.mp4 test 5        #自定义分段大小
-python3 up.py test.mp4 test LIMITED  #限制码率（需重编码）
 
 python3 ls.py    #列出已上传视频
 python3 ls.py 3  #列出已上传视频（第3页，50每页）
@@ -53,7 +51,7 @@ python3 ls.py 3  #列出已上传视频（第3页，50每页）
 
 ```bash
 apt install -y python3 python3-pip
-pip3 install Flask gunicorn python-dotenv
+pip3 install Flask peewee gunicorn python-dotenv
 ```
 
 

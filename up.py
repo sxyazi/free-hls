@@ -1,22 +1,11 @@
+import argparse
 import os, re, json
-from sys import argv
+from os import path
 from os import getenv as _
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from utils import api, exec, execstr, tsfiles, safename, uploader, sameparams
-load_dotenv()
-argv += [''] * 3
-
-def checker(code):
-  flag  = False
-  limit = uploader().MAX_BYTES
-
-  for file in tsfiles(code):
-    if os.path.getsize(file) >= limit:
-      flag = True
-      print('File too large: tmp/%s' % file)
-
-  return exit(1) if flag else code
+from utils import (api, exec, execstr, tsfiles, uploader,
+                    manageurl, sameparams, genslice, genrepair)
 
 def encrypt(code):
   if not _('ENCRYPTION') == 'YES':
@@ -33,9 +22,9 @@ def encrypt(code):
 
     key_id = api('POST', 'key', data={'iv': iv, 'key': key})
     if not key_id:
-      print('failed')
       open('out.m3u8', 'w').write(code)
-      exit()
+      print('failed')
+      exit(1)
 
     print('done')
     code = re.sub('(#EXTINF:.+$[\\r\\n]+^%s$)' % file, '#EXT-X-KEY:METHOD=AES-128,URI="%s/play/%s.key",IV=0x%s\n\\1' % (_('APIURL'), key_id, iv), code, 1, re.M)
@@ -51,46 +40,42 @@ def publish(code, title=None):
   r = api('POST', 'publish', data={'code': code, 'title': title,
                                    'params': json.dumps(uploader().params())})
   if r:
-    url = '%s/play/%s' % (_('APIURL'), r)
+    url = '%s/play/%s' % (_('APIURL'), r['slug'])
     print('This video has been published to: %s' % url)
     print('You can also download it directly: %s.m3u8' % url)
+    print('---')
+    print('Click here to edit the information for this video:\n%s' % manageurl('video/%s' % r['id']))
 
-def bit_rate(file):
-  return int(execstr(['ffprobe','-v','error','-show_entries','format=bit_rate','-of','default=noprint_wrappers=1:nokey=1',file]))
+def repairer(code):
+  limit = uploader().MAX_BYTES
 
-def video_codec(file):
-  codecs = execstr(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','default=noprint_wrappers=1:nokey=1',file])
-  return 'h264' if set(codecs.split('\n')).difference({'h264'}) else 'copy'
+  for file in tsfiles(code):
+    if path.getsize(file) > limit:
+      tmp = 'rep.%s' % file
+      os.system(genrepair(file, tmp, limit * 8))
+      os.rename(tmp, file)
 
-def command_generator(file):
+      if path.getsize(file) > limit:
+        open('out.m3u8', 'w').write(code)
+        print('File too large: tmp/%s' % file)
+        print('Adjust parameters or continue execution with the same parameters')
+        exit(2)
 
-  sub          = ''
-  rate         = bit_rate(file)
-  vcodec       = video_codec(file)
-  max_bits     = uploader().MAX_BYTES * 8
-  segment_time = min(20, int(max_bits / (rate * 1.35)))
-
-
-  #LIMITED
-  if rate > 6e6 or argv[3] == 'LIMITED':
-    maxrate = max_bits / 20 / 2.5
-    sub    += ' -b:v %d -maxrate %d -bufsize %d' % (min(rate, maxrate*0.9), maxrate, maxrate/1.5)
-    vcodec, segment_time = 'h264', 20
-
-  #SEGMENT_TIME
-  if argv[3].isnumeric():
-    sub += ' -segment_time %d' % float(argv[3])
-  else:
-    sub += ' -segment_time %d' % segment_time
-
-  return 'ffmpeg -i %s -vcodec %s -acodec aac -bsf:v h264_mp4toannexb -map 0:v:0 -map 0:a? -f segment -segment_list out.m3u8 %s out%%05d.ts' % (safename(file), vcodec, sub)
+  open('out.m3u8', 'w').write(code)
+  return code
 
 
 def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('file', type=str, help='video file')
+  parser.add_argument('title', type=str, nargs='?', help='post title')
+  parser.add_argument('time', type=int, nargs='?', help='time for pre segment', default=0)
+  parser.add_argument('-c, --config', type=str, dest='config', help='change the configuration file path')
+  args = parser.parse_args()
 
-  title   = argv[2] if argv[2] else os.path.splitext(os.path.basename(argv[1]))[0]
-  tmpdir  = os.path.dirname(os.path.abspath(__file__)) + '/tmp'
-  command = command_generator(os.path.abspath(argv[1]))
+  load_dotenv(args.config)
+  tmpdir  = path.dirname(path.abspath(__file__)) + '/tmp'
+  command = genslice(path.abspath(args.file), args.time)
 
   if sameparams(tmpdir, command):
     os.chdir(tmpdir)
@@ -101,7 +86,7 @@ def main():
     open('command.sh', 'w').write(command)
 
   failures, completions = 0, 0
-  lines    = checker(encrypt(open('out.m3u8', 'r').read()))
+  lines    = encrypt(repairer(open('out.m3u8', 'r').read()))
   executor = ThreadPoolExecutor(max_workers=15)
   futures  = {executor.submit(uploader().handle, chunk): chunk for chunk in tsfiles(lines)}
 
@@ -119,13 +104,14 @@ def main():
 
   #Write to file
   open('out.m3u8', 'w').write(lines)
+  open('params.json', 'w').write(json.dumps(uploader().params()))
 
-  if not failures:
-    publish(lines, title)
-  else:
+  if failures:
     print('Partially successful: %d/%d' % (completions-failures, completions))
     print('You can re-execute this program with the same parameters')
+    exit(2)
 
+  publish(lines, args.title or path.splitext(path.basename(args.file))[0])
 
 
 if __name__ == '__main__':

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ '更新' if video else '发布' }}视频</title>
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/selectize@0.12.2/dist/css/selectize.css">
+  <style>
+    .selectize-input {
+      border: none;
+      border-radius: 0;
+      background: #424242;
+      padding-left: 0 !important;
+      box-shadow: none !important;
+      border-bottom: 1px solid rgba(255, 255, 255, .7);
+    }
+    .selectize-input:focus {
+      border-bottom-color: #448aff;
+    }
+    .selectize-input > .item {
+      margin-right: 6px !important;
+    }
+    .selectize-input > input {
+      color: white;
+    }
+  </style>
+</head>
+<body class="mdui-theme-layout-dark mdui-theme-primary-grey mdui-theme-accent-blue
+              mdui-bottom-nav-fixed mdui-appbar-with-toolbar mdui-drawer-body-left">
+  <div class="mdui-appbar mdui-appbar-fixed">
+    <div class="mdui-toolbar mdui-color-theme">
+      <a href="/" class="mdui-typo-headline">FreeHLS</a>
+      <a href="javascript:;" class="mdui-typo-title">{{ '更新' if video else '发布' }}视频</a>
+      <div class="mdui-toolbar-spacer"></div>
+      <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
+    </div>
+  </div>
+
+  <div class="mdui-drawer">
+    <ul class="mdui-list">
+      <li class="mdui-list-item mdui-ripple {{ 'mdui-list-item-active' if video else '' }}">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">ondemand_video</i>
+        <a class="mdui-list-item-content" href="/videos">视频管理</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-deep-orange">device_hub</i>
+        <a class="mdui-list-item-content" href="/tags">标签管理</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-pink">cloud_upload</i>
+        <a class="mdui-list-item-content" href="/offline">离线切片</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple {{ '' if video else 'mdui-list-item-active' }}">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
+        <a class="mdui-list-item-content" href="/video">发布视频</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-yellow-200">lock</i>
+        <a class="mdui-list-item-content" href="/login">退出登录</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="mdui-container-fluid">
+    <div class="situation mdui-row mdui-m-y-3">
+      <div class="mdui-col-xs-10 mdui-col-offset-xs-1">
+        <div class="mdui-card mdui-color-theme-800">
+          <div class="mdui-card-primary">
+            <div class="mdui-card-primary-title">视频信息</div>
+            <div class="mdui-card-primary-subtitle">Information</div>
+          </div>
+          <div class="mdui-card-menu">
+            <button onclick="saveVideo()" class="mdui-btn mdui-btn-icon mdui-text-color-white">
+              <i class="mdui-icon material-icons">check</i>
+            </button>
+            {% if video %}
+            <button onclick="removeVideo('{{ video.id }}')" class="mdui-btn mdui-btn-icon mdui-text-color-white">
+              <i class="mdui-icon material-icons">delete</i>
+            </button>
+            {% endif %}
+          </div>
+          <div class="mdui-card-content">
+            <form id="form-video" onsubmit="saveVideo(event)">
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">标题</label>
+                <input name="title" type="text" class="mdui-textfield-input" value="{{ video.title }}">
+              </div>
+
+              {% if video and video.status < 1 %}
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">Slug</label>
+                <input name="slug" type="text" class="mdui-textfield-input" value="{{ video.slug }}">
+              </div>
+              {% endif %}
+
+              <div class="mdui-m-b-1 mdui-m-t-2">
+                <label class="mdui-textfield-label">标签</label>
+                <input id="input-tags" name="tags" type="text" class="demo-default" value="{{ video.tags }}">
+              </div>
+
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">参数</label>
+                <textarea name="params" class="mdui-textfield-input">{{ video.params or '{"padding": 0}' }}</textarea>
+              </div>
+
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">M3U8 代码</label>
+                <textarea name="code" class="mdui-textfield-input">{{ video.code }}</textarea>
+              </div>
+
+              {% if video and video.output %}
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">输出日志</label>
+                <textarea id="output" rows="10" readonly class="mdui-textfield-input">{{ video.output }}</textarea>
+              </div>
+              {% endif %}
+
+              <input name="id" type="hidden" value="{{ video.id }}">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="/assets/js/utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/selectize@0.12.2/dist/js/standalone/selectize.min.js"></script>
+<script>
+var SECRET = '{{ SECRET }}',
+    VERSION = '{{ VERSION }}';
+
+function saveVideo(e) {
+  var selectize = $('#input-tags').data('selectize');
+  if (!selectize.getValue()) {
+    selectize.addOption({name: '未标记'});
+    selectize.setValue('未标记');
+  }
+
+  api('POST', 'publish', $('#form-video').serialize(), function (res) {
+    if ($('input[name="id"]').val()) {
+      return snackbar('保存成功');
+    }
+
+    snackbar('创建成功，即将跳转');
+    setTimeout(function () { location.href = '/video/' + res.id; }, 1000);
+  });
+
+  e && e.preventDefault();
+}
+
+function removeVideo(video_id) {
+  mdui.confirm('确定要移除此视频吗？', function () {
+    api('POST', 'video/' + video_id, {remove: 1}, function () {
+      snackbar('移除成功，即将跳转');
+      setTimeout(function () { location.href = '/videos'; }, 1000);
+    });
+  });
+}
+
+$('#output').scrollTop(2e10)
+$('#input-tags').selectize({
+  valueField: 'name',
+  labelField: 'name',
+  searchField: 'name',
+  options: [],
+  create: true,
+  load: function(query, callback) {
+    if (!query.length) return callback();
+    $.ajax({
+      url: '/tags',
+      type: 'GET',
+      data: {q: query},
+      error: function() {
+        callback();
+      },
+      success: function(res) {
+        callback(res[1]);
+      }
+    });
+  }
+});
+</script>
+</html>

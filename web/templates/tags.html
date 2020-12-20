@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>标签管理</title>
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
+</head>
+<body class="mdui-theme-layout-dark mdui-theme-primary-grey mdui-theme-accent-blue
+              mdui-bottom-nav-fixed mdui-appbar-with-toolbar mdui-drawer-body-left">
+  <div class="mdui-appbar mdui-appbar-fixed">
+    <div class="mdui-toolbar mdui-color-theme">
+      <a href="/" class="mdui-typo-headline">FreeHLS</a>
+      <a href="javascript:;" class="mdui-typo-title">标签管理</a>
+      <div class="mdui-toolbar-spacer"></div>
+      <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
+    </div>
+  </div>
+
+  <div class="mdui-drawer">
+    <ul class="mdui-list">
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">ondemand_video</i>
+        <a class="mdui-list-item-content" href="/videos">视频管理</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple mdui-list-item-active">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-deep-orange">device_hub</i>
+        <a class="mdui-list-item-content" href="/tags">标签管理</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-pink">cloud_upload</i>
+        <a class="mdui-list-item-content" href="/offline">离线切片</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
+        <a class="mdui-list-item-content" href="/video">发布视频</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-yellow-200">lock</i>
+        <a class="mdui-list-item-content" href="/login">退出登录</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="mdui-container-fluid">
+    <div class="situation mdui-row mdui-m-y-3">
+      <div class="mdui-col-xs-10 mdui-col-offset-xs-1">
+        <h1 class="mdui-text-color-theme">标签列表</h1>
+        <div id="tag-list" class="mdui-panel paginate-container" mdui-panel index="tags" pagination="GET:tags?list">
+        </div>
+        <div index="tags" class="paginator mdui-p-y-3 mdui-text-right mdui-text-color-theme-500"></div>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="/assets/js/utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+<script>
+var SECRET = '{{ SECRET }}',
+    VERSION = '{{ VERSION }}';
+
+pagination($('#tag-list'), function (tags) {
+  var html = '';
+  for (var i=0; i<tags.length; i++) {
+      html
+        += '<div class="mdui-panel-item mdui-color-theme-800" tag-id="' + tags[i].id + '"'
+        +  '     index="tag-' + tags[i].id + '" pagination="GET:videos?tag=' + tags[i].id + '">'
+        +  '  <div class="mdui-panel-item-header">'
+        +  '    <div class="mdui-panel-item-title">' + tags[i].name + '</div>'
+        +  '    <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>'
+        +  '  </div>'
+        +  '  <div class="mdui-panel-item-body">'
+        +  '    <div class="mdui-table-fluid">'
+        +  '      <form method="POST" onsubmit="return false">'
+        +  '        <table class="mdui-table mdui-table-hoverable mdui-color-theme-800">'
+        +  '          <thead>'
+        +  '            <tr>'
+        +  '              <th width="60" class="mdui-text-center">#</th>'
+        +  '              <th>标题</th>'
+        +  '              <th>标签</th>'
+        +  '              <th>发布时间</th>'
+        +  '            </tr>'
+        +  '          </thead>'
+        +  '          <tbody index="tag-' + tags[i].id + '" class="paginate-container"></tbody>'
+        +  '        </table>'
+        +  '      </form>'
+        +  '      <div index="tag-' + tags[i].id + '" class="paginate-loading mdui-p-y-3 mdui-text-center mdui-text-color-theme-700">数据加载中……</div>'
+        +  '    </div>'
+        +  '    <div class="mdui-panel-item-actions">'
+        +  '      <button class="mdui-btn mdui-ripple" mdui-panel-item-close>cancel</button>'
+        +  '      <button class="mdui-btn mdui-ripple" onclick="saveTagVideos(event)">save</button>'
+        +  '    </div>'
+        +  '  </div>'
+        +  '</div>';
+    }
+
+    return html;
+});
+
+$('#tag-list').on('opened.mdui.panel', function (e) {
+  pagination($(e.target), function (videos) {
+    var html = '';
+    for (var i=0; i<videos.length; i++) {
+      html
+        += '<tr>'
+        +  '  <td>'
+        +  '    <input name="sort[' + videos[i].id + ']" type="text" class="sort mdui-text-center mdui-color-theme-700" value="' + videos[i].sort + '">'
+        +  '  </td>'
+        +  '  <td>'
+        +  '    <a href="/play/' + videos[i].slug + '" target="_blank" class="mdui-text-color-theme-100">' + videos[i].title + '</a>'
+        +  '  </td>'
+        +  '  <td>' + videos[i].tags + '</td>'
+        +  '  <td>' + dateformat(videos[i].created_at) + '</td>'
+        +  '</tr>';
+    }
+
+    return html;
+  });
+});
+
+$('#tag-list').on('closed.mdui.panel', function (e) {
+  $(e.target).find('tbody').empty();
+});
+
+function saveTagVideos(e) {
+  var tag = $(e.target).parents('[tag-id]');
+  var videos = [];
+
+  for (var i=0, j=tag.find('form input'); i<j.length; i++) {
+    var matches = j[i].name.match(/(\w+)\[(\d+)\]/);
+    var video = {id: matches[2]};
+        video[matches[1]] = j[i].value;
+
+    videos.push(video);
+  }
+
+  api('POST', 'tag_videos/' + tag.attr('tag-id'), {videos: JSON.stringify(videos)}, function () {
+    tag.trigger('opened.mdui.panel');
+    snackbar('保存成功');
+  });
+}
+</script>
+</html>

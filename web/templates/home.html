@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello, FreeHLS!</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
+</head>
+<body class="mdui-theme-layout-dark mdui-theme-primary-grey mdui-theme-accent-red mdui-bottom-nav-fixed mdui-appbar-with-toolbar">
+  <div class="mdui-appbar mdui-appbar-fixed">
+    <div class="mdui-toolbar mdui-color-theme">
+      <a href="/" class="mdui-typo-headline">FreeHLS</a>
+      <a href="javascript:;" class="mdui-typo-title">首页</a>
+      <div class="mdui-toolbar-spacer"></div>
+      <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
+    </div>
+  </div>
+
+  <div class="mdui-container-fluid">
+    <!-- 最新标签 -->
+    <div class="tags mdui-row mdui-m-y-3">
+      <div class="mdui-col-xs-6 mdui-col-offset-xs-3">
+        <p class="mdui-m-b-1 mdui-text-color-theme-secondary">最新标签</p>
+        <div class="tag-items">
+          {% for tag in latest_tags.values() %}
+          <a href="/playlist/{{ tag.id }}" class="mdui-chip mdui-color-theme-800">
+            <span class="mdui-chip-title">{{ tag.name }}</span>
+          </a>
+          {% endfor %}
+          <!-- <div class="mdui-chip mdui-color-theme-800">
+            <span class="mdui-chip-title">更多…</span>
+          </div> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 站点状况 -->
+    <div class="situation mdui-row mdui-m-y-3">
+      <div class="mdui-col-xs-6 mdui-col-offset-xs-3">
+        <div class="mdui-card mdui-color-theme-800">
+          <div class="mdui-card-primary">
+            <div class="mdui-card-primary-title">站点状况</div>
+            <div class="mdui-card-primary-subtitle">Situation</div>
+          </div>
+
+          <div class="mdui-card-content mdui-p-y-0">
+            <p>公告板：欢迎使用 Free-HLS 系统</p>
+            <p>系统运行正常。迄今为止共创建标签 <b>{{ total_tags }}</b> 个，发布视频 <b>{{ total_videos }}</b> 个</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视频列表 -->
+    <div class="list mdui-row mdui-m-y-3">
+      <div class="mdui-col-xs-6 mdui-col-offset-xs-3">
+        {% for tagid, videos in tags_videos.items() %}
+        <ul class="mdui-list mdui-color-theme-800 mdui-m-b-3">
+          <li class="mdui-subheader-inset mdui-color-theme-800">{{ latest_tags[tagid].name }}</li>
+          {% for video in videos %}
+          <li class="mdui-list-item mdui-ripple">
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-secondx mdui-color-theme-700">play_arrow</i>
+            <a href="/playlist/{{tagid}}?watch={{video.slug}}" class="mdui-list-item-content">
+              <div class="mdui-list-item-title">{{ video.title }}</div>
+              <div class="mdui-list-item-text">发布于 {{ video.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+            </a>
+            <i class="mdui-list-item-icon mdui-icon material-icons">navigate_next</i>
+          </li>
+          {% endfor %}
+          <li class="mdui-list-item mdui-ripple">
+            <a href="/playlist/{{ tagid }}" class="mdui-list-item-content">
+              <div class="mdui-list-item-text mdui-text-center">查看全部</div>
+            </a>
+          </li>
+        </ul>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="mdui-bottom-nav mdui-color-theme-800">
+    <a href="javascript:;" class="mdui-ripple mdui-ripple-white mdui-bottom-nav-active">
+      <i class="mdui-icon material-icons">live_tv</i>
+      <label>Movies</label>
+    </a>
+    <a href="javascript:;" class="mdui-ripple mdui-ripple-white">
+      <i class="mdui-icon material-icons">music_note</i>
+      <label>Music</label>
+    </a>
+    <a href="javascript:;" class="mdui-ripple mdui-ripple-white">
+      <i class="mdui-icon material-icons">book</i>
+      <label>Books</label>
+    </a>
+    <a href="javascript:;" class="mdui-ripple mdui-ripple-white">
+      <i class="mdui-icon material-icons">library_books</i>
+      <label>Newsstand</label>
+    </a>
+  </div> -->
+</body>
+<script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
+</html>

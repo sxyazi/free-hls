@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录</title>
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/css/mdui.min.css">
+</head>
+<body class="mdui-theme-layout-dark mdui-theme-primary-grey mdui-theme-accent-blue
+              mdui-bottom-nav-fixed mdui-appbar-with-toolbar mdui-drawer-body-left">
+  <div class="mdui-appbar mdui-appbar-fixed">
+    <div class="mdui-toolbar mdui-color-theme">
+      <a href="/" class="mdui-typo-headline">FreeHLS</a>
+      <a href="javascript:;" class="mdui-typo-title">登录</a>
+      <div class="mdui-toolbar-spacer"></div>
+      <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>
+    </div>
+  </div>
+
+  <div class="mdui-drawer">
+    <ul class="mdui-list">
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-green">ondemand_video</i>
+        <a class="mdui-list-item-content" href="/videos">视频管理</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-deep-orange">device_hub</i>
+        <a class="mdui-list-item-content" href="/tags">标签管理</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-pink">cloud_upload</i>
+        <a class="mdui-list-item-content" href="/offline">离线切片</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-blue">send</i>
+        <a class="mdui-list-item-content" href="/video">发布视频</a>
+      </li>
+      <li class="mdui-list-item mdui-ripple mdui-list-item-active">
+        <i class="mdui-list-item-icon mdui-icon material-icons mdui-text-color-yellow-200">lock_open</i>
+        <a class="mdui-list-item-content" href="/login">登录账号</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="mdui-container-fluid">
+    <div class="situation mdui-row mdui-m-y-3">
+      <div class="mdui-col-xs-10 mdui-col-offset-xs-1">
+        <div class="mdui-card mdui-color-theme-800">
+          <div class="mdui-card-primary">
+            <div class="mdui-card-primary-title">登录</div>
+            <div class="mdui-card-primary-subtitle">Login</div>
+          </div>
+          <div class="mdui-card-menu">
+            <button onclick="login()" class="mdui-btn mdui-btn-icon mdui-text-color-white">
+              <i class="mdui-icon material-icons">check</i>
+            </button>
+          </div>
+          <div class="mdui-card-content">
+            <form id="form-login" onsubmit="login(event)">
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label">密钥</label>
+                <input name="secret" type="text" class="mdui-textfield-input">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="/assets/js/utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+<script>
+function login (e) {
+  api('POST', 'login', $('#form-login').serialize(), function () {
+    snackbar('登录成功，即将跳转');
+    setTimeout(function () { location.href = '/videos'; }, 1000);
+  });
+
+  e && e.preventDefault();
+}
+</script>
+</html>
