@@ -13,7 +13,7 @@ def cloud():
     root = os.path.dirname(os.getcwd())
     envfile = cloudconfig()
     cmd = [sys.executable, f'{root}/up.py', '-c', envfile, f'{os.getcwd()}/queues/{video.id}']
-    Video.update({Video.output: f'{cmd}\n'}).where(Video.id == video.id).execute()
+    Video.update({Video.output: f'{" ".join(cmd)}\n'}).where(Video.id == video.id).execute()
 
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     while True:
