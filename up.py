@@ -15,7 +15,7 @@ def encrypt(code):
     if file.startswith('enc.'):
       continue
 
-    print('Encrypting %s to enc.%s ... ' % (file, file), end='')
+    print(f'Encrypting {file} to enc.{file} ... ', end='')
     key = exec(['openssl','rand','16']).hex()
     iv  = execstr(['openssl','rand','-hex','16'])
     exec(['openssl','aes-128-cbc','-e','-in',file,'-out','enc.%s' % file,'-p','-nosalt','-iv',iv,'-K',key])
@@ -27,8 +27,8 @@ def encrypt(code):
       exit(1)
 
     print('done')
-    code = re.sub('(#EXTINF:.+$[\\r\\n]+^%s$)' % file, '#EXT-X-KEY:METHOD=AES-128,URI="%s/play/%s.key",IV=0x%s\n\\1' % (_('APIURL'), key_id, iv), code, 1, re.M)
-    code = code.replace(file, 'enc.%s' % file)
+    code = re.sub(f'(#EXTINF:.+$[\\r\\n]+^{file}$)', '#EXT-X-KEY:METHOD=AES-128,URI="%s/play/%s.key",IV=0x%s\n\\1' % (_('APIURL'), key_id, iv), code, 1, re.M)
+    code = code.replace(file, f'enc.{file}')
 
   open('out.m3u8', 'w').write(code)
   return code
@@ -41,10 +41,10 @@ def publish(code, title=None):
                                    'params': json.dumps(uploader().params())})
   if r:
     url = '%s/play/%s' % (_('APIURL'), r['slug'])
-    print('This video has been published to: %s' % url)
-    print('You can also download it directly: %s.m3u8' % url)
+    print(f'This video has been published to: {url}')
+    print(f'You can also download it directly: {url}.m3u8')
     print('---')
-    print('Click here to edit the information for this video:\n%s' % manageurl('video/%s' % r['id']))
+    print('Click here to edit the information for this video:\n%s' % manageurl(f'video/{r["id"]}'))
 
 def repairer(code):
   limit = uploader().MAX_BYTES
@@ -57,7 +57,7 @@ def repairer(code):
 
       if path.getsize(file) > limit:
         open('out.m3u8', 'w').write(code)
-        print('File too large: tmp/%s' % file)
+        print(f'File too large: tmp/{file}')
         print('Adjust parameters or continue execution with the same parameters')
         exit(2)
 

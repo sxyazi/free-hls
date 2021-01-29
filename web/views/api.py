@@ -39,7 +39,7 @@ def queue():
     tags = request.form.get('tags'),
     title = request.form.get('title'))
 
-  os.rename(file, '%s/%s' % (os.path.dirname(file), video.id))
+  os.rename(file, f'{os.path.dirname(file)}/{video.id}')
   return 1, video.id
 
 @app.route('/publish', methods=['POST'])

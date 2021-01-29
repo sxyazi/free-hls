@@ -23,7 +23,7 @@ def tag(id = 0):
 @mng_combined
 def tags():
   if 'q' in request.args:
-    q = '%%%s%%' % request.args['q']
+    q = f'%{request.args["q"]}%'
     return 1, [model_to_dict(tag) for tag in Tag.select().where(Tag.name ** q).limit(10)]
 
   if 'list' in request.args:

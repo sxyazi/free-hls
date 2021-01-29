@@ -13,10 +13,10 @@ class Uploader:
   def handle(cls, file):
     file = file.read()
     r = api('POST', 'upload', files={
-      'file': ('%s.ts' % md5(file), file, 'video/mp2t')
+      'file': (f'{md5(file)}.ts', file, 'video/mp2t')
     })
 
     if not r:
       return None
 
-    return '%s/uploads/%s' % (_('APIURL'), r)
+    return f'{_("APIURL")}/uploads/{r}'

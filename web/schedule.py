@@ -12,7 +12,8 @@ def cloud():
 
     root = os.path.dirname(os.getcwd())
     envfile = cloudconfig()
-    cmd = [sys.executable, '%s/up.py' % root, '-c', envfile, '%s/queues/%s' % (os.getcwd(), video.id)]
+    cmd = [sys.executable, f'{root}/up.py', '-c', envfile, f'{os.getcwd()}/queues/{video.id}']
+    Video.update({Video.output: f'{cmd}\n'}).where(Video.id == video.id).execute()
 
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     while True:
@@ -28,12 +29,12 @@ def cloud():
     if p.returncode != 0:
       continue
 
-    code = open('%s/tmp/out.m3u8' % root, 'r').read()
+    code = open(f'{root}/tmp/out.m3u8', 'r').read()
     Video.update(
       status = 0,
       code = code,
       slug = md5(code, True),
-      params = open('%s/tmp/params.json' % root, 'r').read(),
+      params = open(f'{root}/tmp/params.json', 'r').read(),
       updated_at = datetime.datetime.now()
     ).where(Video.id == video.id).execute()
 

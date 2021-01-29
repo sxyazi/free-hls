@@ -12,12 +12,12 @@ def main():
   except:
     page = 1
 
-  result = api('GET', 'paginate?page=%d' % page)
+  result = api('GET', f'paginate?page={page}')
   for video in result['data']:
-    link = '%s/play/%s' % (_('APIURL'), video['slug'])
+    link = f'{_("APIURL")}/play/{video["slug"]}'
     date = datetime.strptime(video['created_at'], '%a, %d %b %Y %H:%M:%S GMT')
 
-    print('%s\t%s\t%s' % (video['title'], date, link))
+    print(f'{video["title"]}\t{date}\t{link}')
 
 
 if __name__ == '__main__':

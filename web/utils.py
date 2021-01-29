@@ -31,8 +31,8 @@ def saveupload(dir, full=False):
 
 def cloudconfig():
   root = path.dirname(path.dirname(path.abspath(__file__)))
-  config = '%s/.env.cloud' % root
-  shutil.copy('%s/.env' % root, config)
+  config = f'{root}/.env.cloud'
+  shutil.copy(f'{root}/.env', config)
 
   with open(config, 'a') as f:
     f.write('\n')

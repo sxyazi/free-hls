@@ -21,7 +21,7 @@ def test(curr, step):
   maps = {}
   reve = False
   reve_inc = None
-  print('Starting test %s:' % _('UPLOAD_DRIVE'))
+  print(f'Starting test {_("UPLOAD_DRIVE")}:')
 
   while True:
     if curr in maps:
@@ -38,7 +38,7 @@ def test(curr, step):
       step = 30
 
     if not result and not reve_inc == None:
-      print('\n---\nFinally ... %dM' % reve_inc)
+      print(f'\n---\nFinally ... {reve_inc}M')
       exit(0)
 
     if reve and result:
