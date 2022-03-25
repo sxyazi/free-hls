@@ -39,9 +39,7 @@ pip3 install requests python-dotenv
 
 ### 2. 配置服务
 
-正确施行 [服务端](#服务端) 一节的全部内容，完成服务端的搭建。复制客户端配置文件 `.env.example` 为 `.env`，修改其中的 `APIURL` 配置项为你的服务器域名或 IP 地址。
-
-将你的上传驱动器复制到 `uploader` 目录，并在 `.env` 中完成相应的配置。若没有驱动器，请参考 [上传驱动器](https://github.com/sxyazi/free-hls/wiki/%E4%B8%8A%E4%BC%A0%E9%A9%B1%E5%8A%A8%E5%99%A8) 文章。
+复制客户端配置文件 `.env.example` 为 `.env`，修改其中的 `APIURL` 配置项为你的服务器域名或 IP 地址。将你的上传驱动器复制到 `uploader` 目录，并在 `.env` 中完成相应的配置。若没有驱动器，请参考 [上传驱动器](https://github.com/sxyazi/free-hls/wiki/%E4%B8%8A%E4%BC%A0%E9%A9%B1%E5%8A%A8%E5%99%A8)。
 
 ### 3. 开始使用
 
