@@ -16,9 +16,9 @@ docker run --name free-hls -d -p 33950:3395 -v free-hls-data:/var/app sxyazi/fre
 
 ## 客户端
 
-客户端，即 `up.py` 入口，提供对上传视频资源的切片、转码、上传的支持。可以在任意主机使用，只要您安装了必要的依赖和作出了正确的配置。
+客户端，即 `up.py` 入口，提供对视频资源的切片、转码、上传的支持。可以在任意主机使用，只要您安装了必要的依赖和作出了正确的配置。
 
-### 1. 安装依赖
+### 配置
 
 安装最新的 Python3，以及必要包：
 
@@ -27,11 +27,9 @@ apt install -y ffmpeg python3 python3-pip
 pip3 install requests python-dotenv
 ```
 
-### 2. 配置服务
+复制客户端配置文件 `.env.example` 为 `.env`，将 `APIURL` 改为您的服务器域名或 IP 地址，最后修改 `UPLOAD_DRIVE` 为您的 [上传驱动器](https://github.com/sxyazi/free-hls/wiki/%E4%B8%8A%E4%BC%A0%E9%A9%B1%E5%8A%A8%E5%99%A8)，其值为 `uploader` 目录中的文件名。
 
-复制客户端配置文件 `.env.example` 为 `.env`，修改其中的 `APIURL` 配置项为您的服务器域名或 IP 地址。将您的上传驱动器复制到 `uploader` 目录，并在 `.env` 中完成相应的配置。若没有驱动器，请参考 [上传驱动器](https://github.com/sxyazi/free-hls/wiki/%E4%B8%8A%E4%BC%A0%E9%A9%B1%E5%8A%A8%E5%99%A8)。
-
-### 3. 开始使用
+### 开始使用
 
 准备好目标视频文件，输入如下指令开始切片、上传：
 
