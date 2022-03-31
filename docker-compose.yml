@@ -1,17 +1,18 @@
-version: "2"
+version: '2'
 
 services:
   free-hls:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: "free-hls"
+    build: .
+    container_name: 'free-hls'
     volumes:
-      - ./userdata:/home/app/web/userdata
+      - app:/var/app
     logging:
       options:
-        max-size: "1G"
-        max-file: "10"
+        max-size: '1G'
+        max-file: '10'
     ports:
-      - "8787:3395"
+      - '33950:3395'
     restart: always
+
+volumes:
+  app:
